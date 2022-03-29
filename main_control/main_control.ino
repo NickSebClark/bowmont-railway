@@ -3,7 +3,7 @@
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
 
-#define NBR_POINTS 16
+#define NBR_POINTS 15
 
 #define Control_switch 44
 
@@ -16,14 +16,13 @@
 #define servo_5 1 //Button 4
 #define servo_6 -1 //Button 5
 #define servo_7 -1 //Button 5
-#define servo_8 -1 //Button 5
+#define servo_8 -1 //Button 6
 #define servo_9 -1 //Button 6
-#define servo_10 -1 //Button 6
-#define servo_11 2 //Button 7
-#define servo_12 -1 //Button 8
-#define servo_13 -1 //Button 9
-#define servo_14 -1 //Button 10
-#define servo_15 -1 //Button 11
+#define servo_10 2 //Button 7
+#define servo_11 -1 //Button 8
+#define servo_12 -1 //Button 9
+#define servo_13 -1 //Button 10
+#define servo_14 -1 //Button 11
 
 #define servo_0_pos0 450
 #define servo_1_pos0 -1
@@ -35,12 +34,11 @@
 #define servo_7_pos0 -1
 #define servo_8_pos0 -1
 #define servo_9_pos0 -1
-#define servo_10_pos0 -1
-#define servo_11_pos0 450
+#define servo_10_pos0 450
+#define servo_11_pos0 -1
 #define servo_12_pos0 -1
 #define servo_13_pos0 -1
 #define servo_14_pos0 -1
-#define servo_15_pos0 -1
 
 #define servo_0_pos1 600
 #define servo_1_pos1 -1
@@ -52,12 +50,11 @@
 #define servo_7_pos1 -1
 #define servo_8_pos1 -1
 #define servo_9_pos1 -1
-#define servo_10_pos1 -1
-#define servo_11_pos1 600
+#define servo_10_pos1 600
+#define servo_11_pos1 -1
 #define servo_12_pos1 -1
 #define servo_13_pos1 -1
 #define servo_14_pos1 -1
-#define servo_15_pos1 -1
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
@@ -65,9 +62,10 @@ char inCmd[6];
 int cmdPos = 0;
 
 int pointStatus[NBR_POINTS];
-int pointServo[NBR_POINTS] = {servo_0,servo_1,servo_2,servo_3,servo_4,servo_5,servo_6,servo_7,servo_8,servo_9,servo_10,servo_11,servo_12,servo_13,servo_14,servo_15};
-int pointPos0[NBR_POINTS] = {servo_0_pos0,servo_1_pos0,servo_2_pos0,servo_3_pos0,servo_4_pos0,servo_5_pos0,servo_6_pos0,servo_7_pos0,servo_8_pos0,servo_9_pos0,servo_10_pos0,servo_11_pos0,servo_12_pos0,servo_13_pos0,servo_14_pos0,servo_15_pos0};
-int pointPos1[NBR_POINTS] = {servo_0_pos1,servo_1_pos1,servo_2_pos1,servo_3_pos1,servo_4_pos1,servo_5_pos1,servo_6_pos1,servo_7_pos1,servo_8_pos1,servo_9_pos1,servo_10_pos1,servo_11_pos1,servo_12_pos1,servo_13_pos1,servo_14_pos1,servo_15_pos1};
+int pointServo[NBR_POINTS] = {servo_0,servo_1,servo_2,servo_3,servo_4,servo_5,servo_6,servo_7,servo_8,servo_9,servo_10,servo_11,servo_12,servo_13,servo_14};
+int pointPos0[NBR_POINTS] = {servo_0_pos0,servo_1_pos0,servo_2_pos0,servo_3_pos0,servo_4_pos0,servo_5_pos0,servo_6_pos0,servo_7_pos0,servo_8_pos0,servo_9_pos0,servo_10_pos0,servo_11_pos0,servo_12_pos0,servo_13_pos0,servo_14_pos0};
+int pointPos1[NBR_POINTS] = {servo_0_pos1,servo_1_pos1,servo_2_pos1,servo_3_pos1,servo_4_pos1,servo_5_pos1,servo_6_pos1,servo_7_pos1,servo_8_pos1,servo_9_pos1,servo_10_pos1,servo_11_pos1,servo_12_pos1,servo_13_pos1,servo_14_pos1};
+int point_pair[NBR_POINTS] = {0,0,0,1,-1,0,0,0,1,-1,0,0,0,0,0} //shows the offset, if any, to a partner in a point pair.
 
 boolean stringRecieved = false;
 
@@ -97,15 +95,22 @@ void loop(){
 void parseString(){
   Serial.print("<Parsing Input String>\n");
   String s;
-
+  int point_index;
+  
   switch(inCmd[0]){
     case 'p':
+      
       if(cmdPos > 2){//two character number
         s = String(inCmd[1]) + String(inCmd[2]);
-        setPoint(s.toInt());
+        point_index = s.toInt();
       }
       else
-        setPoint((int)inCmd[1] - 48);
+        point_index = (int)inCmd[1] - 48;
+        
+      setPoint(point_index);
+      if(point_pair(point_index) != 0) //set the point pair too if it exists
+        setPoint(point_index + point_pair(point_index);
+        
       break;
     case 's':
       setSignal(inCmd[2]);
@@ -189,14 +194,13 @@ void setPoint(int point){ //toggles status of point
 }
 
 void syncData(){
-  syncString = "<Sync:";
+  syncString = "S";
   for(int k=0; k<NBR_POINTS; k++){
     syncString = syncString + String(pointStatus[k]);
   }
-  syncString = syncString  + ">";
   //send to both serial ports so PC/controller swap is seamless.
-  //Serial.println(syncString);
-  //Serial1.println(syncString);
+  Serial.println(syncString);
+  Serial1.println(syncString);
 }
 
 void setSignal(int sig){

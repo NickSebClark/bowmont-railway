@@ -1,6 +1,7 @@
-#define NBR_SERVOS 16
+#define NBR_SERVOS 15
 #define NBR_POINT_BUTTONS 12
 
+//led pins for each point
 int ledpins[][2] = { {10,11},
                     {46,45},
                     {33,34},
@@ -12,18 +13,19 @@ int ledpins[][2] = { {10,11},
                     {36,41},
                     {27,29},
                     {49,39},
-                    {44,50} };                    
+                    {44,50} };
 
+//LED pins for the tristate button
 int ledpins_tri[] = {35,43,51};
-
 int button_pins[] = {9,48,42,7,22,40,32,26,37,28,47,6,38};
 
 const int NBR_POINT_BUTTONS = 12;
 const int flash_wait = 50;
 
-int servo_point = [0,1,2,3,3,4,5,5,5,6,6,7,8,9,10,11]; //defines which point a particular servo is changing.
-int point_state[NBR_POINT_BUTTONS];
-int servo_state[NBR_SERVOS]; //either 1 or 0
+int servo_point = [0,1,2,3,3,4,5,5,6,6,7,8,9,10,11]; //defines which point a particular servo is changing.
+int point_servo = [0,1,2,3,5,6,8,10,11,12,13,14]; //what servo to switch for a particular point, the controller handles point pairs)
+int servo_6_set;
+int servo_7_set;
 
 int i = 0;
 
@@ -36,7 +38,8 @@ unsigned long lastDebounceTime[NBR_POINT_BUTTONS+1];  // the last time the outpu
 unsigned long debounceDelay = 50;    // the debounce time; increase if the output flickers
 unsigned long previousMillis = 0;        // will store last time LED was updated
 
-String inputString = "";
+char inCmd[25];
+int cmdPos = 0;
 
 void setup() {
  
@@ -55,7 +58,6 @@ void setup() {
     pinMode(ledpins_tri[2], OUTPUT);
     digitalWrite(ledpins_tri[2], LOW);
     
-
     pinMode(button_pins[i],INPUT_PULLUP);
   }
     
@@ -72,6 +74,7 @@ void setup() {
 
     // initialize serial:
     Serial1.begin(9600);
+    Serial.begin(9600);
     // reserve 200 bytes for the inputString:
     inputString.reserve(200);
 
@@ -162,26 +165,49 @@ void setPointLight(int button_index, int state){
 void updatePointState(int servo_index, int state){
   //map from the servo to the point state
   int point_index;
+  Serial.println("Update State: " + String(servo_index) + " State =" + String(state));
+
+  point_index = servo_point[servo_index]; //find which point to change for this servo.
   
-  if(point_index == 5){ //if it is 5 wrap around 0 -> 3
-    point_state[point_index]++;
-    if(point_state[point_index] > 2){
-      point_state[point_index] = 0;
+  if(servo_index == 6){
+    servo_6_set = state; //save this as servo 7 state is irrelevant if this is set.
+    if(state){
+      state = 2; //set the bottom siding
     }
   }
-  else{
-    point_index = servo_point[servo_index];
-    point_state[point_index] = state;
+  else if(servo_index == 7){
+      servo_7_set = state;
+      if(servo_6_set){
+       state = 2; //set the bottom siding in the 3 if servo 6 is set,o therwise servo 7 indicates middle siding
+      }
   }
 
-  
-
-  setPointLight(point_index, point_state[point_index]);
+  setPointLight(point_index, state);
 }
 
 void requestPointChange(int button_index){
   //map from the button to the servo_index
-  Serial1.println("p" + String(index));
+  int index = point_servo[button_index];
+
+  Serial.println("Request change button index: " + String(button_index) + " Servo Index: " + String(index));
+
+  if(button_index == 5){ //some special code for the tristate point as we need to control p6 and p7
+    if(servo_6_set){ //state is 2 so change to state 0
+       Serial1.println("p6");
+       if(!servo_7_set){
+        Serial1.println("p7");
+       }
+    }
+    else if(servo_7_set){ //state 0 so change to state 1
+      Serial1.println("p7");
+    }
+    else{ //state 1 so change to state 2
+      Serial1.println("p6");
+    }
+  }
+  else{
+    Serial1.println("p" + String(index)); //point pairs are handled by the points controller
+  }
 }
 
 void readButtons(){ //reads each button
@@ -235,18 +261,24 @@ void loop() {
   
 }
 
-void serialEvent() {
-  while (Serial.available()) {
+void serialEvent1() {
+  while (Serial1.available()) {
     // get the new byte:
-    char inChar = (char)Serial.read();
+    char inChar = (char)Serial1.read();
+
+    inCmd[cmdPos] = inChar;
+    cmdPos++;
     
     if (inChar == '\n') { // a complete string has been recieved so parse it.
-      //read all the sync string. Update servo status then call update point status
+      
+      if (inCmd[0] == "S"){ //Sync command recieved
+        for(i=0; i<NBR_SERVOS; i++){
+          updatePointState(i, atoi(inCmd[i+1]));
+        }
+      }
       //reset input string now it has been parsed.
-      inputString = ""; 
+      cmdPos = 0;
     }
-    else{
-      inputString += inChar; //just add the character to the string
-    }
+
   }
 }
