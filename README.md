@@ -1,7 +1,7 @@
 # BowmontRailway
 Model Railway Code
 
-~~Arduino~~
+## Arduino
 Main Controller
 Points Controller
 Comms
