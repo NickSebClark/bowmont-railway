@@ -19,11 +19,10 @@ int ledpins[][2] = { {10,11},
 int ledpins_tri[] = {35,43,51};
 int button_pins[] = {9,48,42,7,22,40,32,26,37,28,47,6,38};
 
-const int NBR_POINT_BUTTONS = 12;
 const int flash_wait = 50;
 
-int servo_point = [0,1,2,3,3,4,5,5,6,6,7,8,9,10,11]; //defines which point a particular servo is changing.
-int point_servo = [0,1,2,3,5,6,8,10,11,12,13,14]; //what servo to switch for a particular point, the controller handles point pairs)
+int servo_point[] = {0,1,2,3,3,4,5,5,6,6,7,8,9,10,11}; //defines which point a particular servo is changing.
+int point_servo[] = {0,1,2,3,5,6,8,10,11,12,13,14}; //what servo to switch for a particular point, the controller handles point pairs)
 int servo_6_set;
 int servo_7_set;
 
@@ -35,7 +34,7 @@ int lastButtonState[NBR_POINT_BUTTONS+1];   // the previous reading from the inp
 // the following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.
 unsigned long lastDebounceTime[NBR_POINT_BUTTONS+1];  // the last time the output pin was toggled
-unsigned long debounceDelay = 50;    // the debounce time; increase if the output flickers
+unsigned long debounceDelay = 100;    // the debounce time; increase if the output flickers
 unsigned long previousMillis = 0;        // will store last time LED was updated
 
 char inCmd[25];
@@ -66,17 +65,13 @@ void setup() {
     circleLights();
 
     flashLights(250);
-    flashLights(250);
-    flashLights(250);
 
-    //set all the button states to true
-    memset(lastButtonState,1,sizeof(lastButtonState));
+    //set all the button states to false
+    memset(lastButtonState,0,sizeof(lastButtonState));
 
     // initialize serial:
     Serial1.begin(9600);
     Serial.begin(9600);
-    // reserve 200 bytes for the inputString:
-    inputString.reserve(200);
 
     requestSync();
 }
@@ -265,15 +260,13 @@ void serialEvent1() {
   while (Serial1.available()) {
     // get the new byte:
     char inChar = (char)Serial1.read();
-
     inCmd[cmdPos] = inChar;
     cmdPos++;
     
     if (inChar == '\n') { // a complete string has been recieved so parse it.
-      
-      if (inCmd[0] == "S"){ //Sync command recieved
+      if (inCmd[0] == 'S'){ //Sync command recieved
         for(i=0; i<NBR_SERVOS; i++){
-          updatePointState(i, atoi(inCmd[i+1]));
+          updatePointState(i, String(inCmd[i+1]).toInt());
         }
       }
       //reset input string now it has been parsed.

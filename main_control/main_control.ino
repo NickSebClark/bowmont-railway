@@ -8,16 +8,16 @@
 #define Control_switch 44
 
 //the counter number for each servo
-#define servo_0 0 //Button 0
-#define servo_1 -1 //Button 1
-#define servo_2 -1 //Button 2
+#define servo_0 4 //Button 0
+#define servo_1 0 //Button 1
+#define servo_2 5 //Button 2
 #define servo_3 -1 //Button 3
 #define servo_4 -1 //Button 3
 #define servo_5 1 //Button 4
 #define servo_6 -1 //Button 5
 #define servo_7 -1 //Button 5
 #define servo_8 -1 //Button 6
-#define servo_9 -1 //Button 6
+#define servo_9 6 //Button 6
 #define servo_10 2 //Button 7
 #define servo_11 -1 //Button 8
 #define servo_12 -1 //Button 9
@@ -25,15 +25,15 @@
 #define servo_14 -1 //Button 11
 
 #define servo_0_pos0 450
-#define servo_1_pos0 -1
-#define servo_2_pos0 -1
+#define servo_1_pos0 450
+#define servo_2_pos0 450
 #define servo_3_pos0 -1
 #define servo_4_pos0 -1
-#define servo_5_pos0 475
+#define servo_5_pos0 580
 #define servo_6_pos0 -1
 #define servo_7_pos0 -1
 #define servo_8_pos0 -1
-#define servo_9_pos0 -1
+#define servo_9_pos0 450
 #define servo_10_pos0 450
 #define servo_11_pos0 -1
 #define servo_12_pos0 -1
@@ -41,15 +41,15 @@
 #define servo_14_pos0 -1
 
 #define servo_0_pos1 600
-#define servo_1_pos1 -1
-#define servo_2_pos1 -1
+#define servo_1_pos1 600
+#define servo_2_pos1 600
 #define servo_3_pos1 -1
 #define servo_4_pos1 -1
-#define servo_5_pos1 580
+#define servo_5_pos1 475
 #define servo_6_pos1 -1
 #define servo_7_pos1 -1
 #define servo_8_pos1 -1
-#define servo_9_pos1 -1
+#define servo_9_pos1 600
 #define servo_10_pos1 600
 #define servo_11_pos1 -1
 #define servo_12_pos1 -1
@@ -65,7 +65,7 @@ int pointStatus[NBR_POINTS];
 int pointServo[NBR_POINTS] = {servo_0,servo_1,servo_2,servo_3,servo_4,servo_5,servo_6,servo_7,servo_8,servo_9,servo_10,servo_11,servo_12,servo_13,servo_14};
 int pointPos0[NBR_POINTS] = {servo_0_pos0,servo_1_pos0,servo_2_pos0,servo_3_pos0,servo_4_pos0,servo_5_pos0,servo_6_pos0,servo_7_pos0,servo_8_pos0,servo_9_pos0,servo_10_pos0,servo_11_pos0,servo_12_pos0,servo_13_pos0,servo_14_pos0};
 int pointPos1[NBR_POINTS] = {servo_0_pos1,servo_1_pos1,servo_2_pos1,servo_3_pos1,servo_4_pos1,servo_5_pos1,servo_6_pos1,servo_7_pos1,servo_8_pos1,servo_9_pos1,servo_10_pos1,servo_11_pos1,servo_12_pos1,servo_13_pos1,servo_14_pos1};
-int point_pair[NBR_POINTS] = {0,0,0,1,-1,0,0,0,1,-1,0,0,0,0,0} //shows the offset, if any, to a partner in a point pair.
+int point_pair[NBR_POINTS] = {0,0,0,1,-1,0,0,0,1,-1,0,0,0,0,0}; //shows the offset, if any, to a partner in a point pair.
 
 boolean stringRecieved = false;
 
@@ -108,8 +108,8 @@ void parseString(){
         point_index = (int)inCmd[1] - 48;
         
       setPoint(point_index);
-      if(point_pair(point_index) != 0) //set the point pair too if it exists
-        setPoint(point_index + point_pair(point_index);
+      if(point_pair[point_index] != 0) //set the point pair too if it exists
+        setPoint(point_index + point_pair[point_index]);
         
       break;
     case 's':
@@ -132,6 +132,7 @@ void parseString(){
 
 void serialEvent1() {
   while(Serial1.available()){
+    int i;
     
     char inChar = (char)Serial1.read(); 
     
@@ -141,6 +142,10 @@ void serialEvent1() {
     
     // if the incoming character is a newline, we have a whole command. Do something.
     if (inChar == '\n') {
+      Serial.println("Serial-1 Recieved");
+      for(i=0; i<cmdPos; i++){
+        Serial.print(inCmd[i]);
+      }
       parseString();
       cmdPos = 0;      
     } 
@@ -149,7 +154,7 @@ void serialEvent1() {
 
 void serialEvent(){ //reads from the serial port
   while(Serial.available()){
-    
+    int i;
     char inChar = (char)Serial.read(); 
     
     // add it to the inputString:
@@ -158,6 +163,10 @@ void serialEvent(){ //reads from the serial port
     
     // if the incoming character is a newline, we have a whole command. Do something.
     if (inChar == '\n') {
+      Serial.println("Serial Recieved");
+      for(i=0; i<cmdPos; i++){
+        Serial.print(inCmd[i]);
+      }
       parseString();
       cmdPos = 0;      
     } 
