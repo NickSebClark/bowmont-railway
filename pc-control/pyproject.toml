@@ -2,7 +2,7 @@
 name = "pc-control"
 version = "0.1.0"
 description = ""
-authors = ["Your Name <you@example.com>"]
+authors = ["Nick Clark <clarknick1990@gmail.com>"]
 readme = "README.md"
 packages = [{include = "pc_control"}]
 
