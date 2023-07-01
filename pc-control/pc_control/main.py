@@ -18,7 +18,11 @@ class Section():
 pygame.init()
 
 # Set up the display
-screen = pygame.display.set_mode((400, 400))
+screen = pygame.display.set_mode((600, 600))
+
+layout = pygame.Surface((400,400))
+
+layout_pos = (100,0)
 
 # Set up the line
 line_color = (255, 255, 255)
@@ -26,18 +30,17 @@ line_start = (50, 200)
 line_end = (150, 250)
 line_width = 5
 
-# Set up the animation
-animation_speed = 2
-animation_direction = 1
+points = [points.BasicPoint(layout, 50,100, type="right_up"), 
+          points.BasicPoint(layout, 00,200, type="right_down"),
+          points.BasicPoint(layout, 50,175, type="up_right"),
+          points.BasicPoint(layout, 200,175, type="up_left"),
+          points.BasicPoint(layout, 50,250, type="down_right"),
+          points.BasicPoint(layout, 200,250, type="down_left"),
+          points.BasicPoint(layout, 200,100, type="left_up"),
+          points.BasicPoint(layout, 200,200, type="left_down")]
 
-
-points = [points.BasicPoint(screen, 100,100, type="ru"), 
-          points.BasicPoint(screen, 100,200, type="rd"),
-          points.BasicPoint(screen, 300,100, type="lu"),
-          points.BasicPoint(screen, 300,200, type="ld")]
-
-sections = [Section(screen, (100, 100), (300,100)),
-        Section(screen, (100, 200), (300,200))]
+sections = [Section(layout, (100, 100), (300,100)),
+        Section(layout, (100, 200), (300,200))]
 
 # Start the game loop
 running = True
@@ -52,6 +55,8 @@ while running:
 
     mouse_pos = pygame.mouse.get_pos()
 
+    mouse_pos = (mouse_pos[0] - layout_pos[0], mouse_pos[1] - layout_pos[1])
+
     for point in points:
         point.update_state(mouse_pos, mouse_up)
     
@@ -59,12 +64,15 @@ while running:
 
     # Draw the line
     screen.fill((0, 0, 0))
+    layout.fill((0,0,0))
 
     for point in points:
         point.draw()
 
     for section in sections:
         section.draw()
+
+    screen.blit(layout, layout_pos)
 
     pygame.display.flip()
 
