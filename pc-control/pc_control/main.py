@@ -26,11 +26,10 @@ while running:
             mouse_up = True
 
     mouse_pos = pygame.mouse.get_pos()
-    layout_mouse_pos = (mouse_pos[0] - layout_pos[0], mouse_pos[1] - layout_pos[1])
 
     screen.fill((0, 0, 0))
 
-    layout.draw(layout_mouse_pos, mouse_up)
+    layout.draw((mouse_pos[0] - layout_pos[0], mouse_pos[1] - layout_pos[1]), mouse_up)
 
     mouse_up = False
 

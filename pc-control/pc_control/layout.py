@@ -1,6 +1,6 @@
 import pygame
 
-from pc_control.points import BasicPoint
+from pc_control.points import StraightPoint, CrossOver
 from pc_control.track import Track
 
 class Layout(pygame.Surface):
@@ -12,14 +12,15 @@ class Layout(pygame.Surface):
 
         super().__init__((Layout.width,Layout.height))
 
-        self.points = [BasicPoint(self, 50,100, type="right_up"), 
-                       BasicPoint(self, 00,200, type="right_down"),
-                       BasicPoint(self, 50,175, type="up_right"),
-                       BasicPoint(self, 200,175, type="up_left"),
-                       BasicPoint(self, 50,250, type="down_right"),
-                       BasicPoint(self, 200,250, type="down_left"),
-                       BasicPoint(self, 200,100, type="left_up"),
-                       BasicPoint(self, 200,200, type="left_down")]
+        self.points = [StraightPoint(self, 50,100, type="right_up"), 
+                       StraightPoint(self, 00,200, type="right_down"),
+                       StraightPoint(self, 50,175, type="up_right"),
+                       StraightPoint(self, 200,175, type="up_left"),
+                       StraightPoint(self, 50,250, type="down_right"),
+                       StraightPoint(self, 200,250, type="down_left"),
+                       StraightPoint(self, 200,100, type="left_up"),
+                       StraightPoint(self, 200,200, type="left_down"),
+                       CrossOver(self,75,320)]
 
         self.sections = [Track(self, [[(100, 100), (150,100)],
                                       [(150, 98), (150,127)],

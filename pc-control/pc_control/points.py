@@ -1,7 +1,51 @@
 import pygame
+import json
 
+def get_colours():
+    with open('settings.json') as settings:
+        return json.load(settings)["colours"]
+    
+class Point():
 
-class BasicPoint():
+    def __init__(self, display, left, top, length=50, throw=20):
+        self.left = left
+        self.top = top
+        self.display = display
+        self.length = length
+        self.throw = throw
+        self.fixed_offset = 10
+        self.thickness = 5
+        self.colours = get_colours()
+
+        self.line_colour = self.colours['ahead']
+
+        self.state = "ahead"
+
+        self.rect = pygame.Rect(0,0,0,0)
+    
+    def update_state(self, mouse_pos, mouse_up):
+            if self.rect.collidepoint(mouse_pos):
+                
+                if self.state == "ahead" or self.state == "diverge":
+                    self.line_colour = self.colours['hover']
+
+                if mouse_up:
+                    self.line_colour = self.colours['moving']
+                    match self.state:
+                        case "ahead":
+                            self.state = "moving_to_diverge"
+                        case "diverge":
+                            self.state = "moving_to_ahead"
+                        case "moving_to_ahead":
+                            self.state = "moving_to_diverge"
+                        case "moving_to_diverge":
+                            self.state = "moving_to_ahead"
+            elif self.state == "ahead":
+                self.line_colour = self.colours['ahead']
+            elif self.state == "diverge":
+                self.line_colour = self.colours['diverge']
+
+class StraightPoint(Point):
     """
     types:
     left_up
@@ -12,22 +56,12 @@ class BasicPoint():
     up_left
     down_right
     down_left
+
+    possible states: ahead, diverge, moving_to_ahead, moving_to_diverge
     """
     def __init__(self, display, left, top, type="left_up", length=50, throw=20):
-        self.left = left
-        self.top = top
-        self.display = display
-        self.length = length
-        self.throw = throw
-        self.fixed_offset = 10
-    
-        self.hover_colour = (235, 52, 61)
-        self.moving_colour = (235, 216, 52)
-        self.ahead_colour = (55, 235, 52)
-        self.diverge_colour = (52, 140, 235)
-        self.boundary_colour = (255,255,255)
 
-        self.line_colour = self.ahead_colour
+        super().__init__(display, left, top, length, throw)
 
         self.line_start = (left, top)
 
@@ -115,32 +149,6 @@ class BasicPoint():
 
         self.rect = pygame.Rect(box_left, box_top, box_width, box_height)
 
-        # possible states: pos1, pos2, moving_to_pos1, moving_to_pos2
-        self.state = "ahead"
-
-    def update_state(self, mouse_pos, mouse_up):
-        if self.rect.collidepoint(mouse_pos):
-            
-            if self.state == "ahead" or self.state == "diverge":
-                self.line_colour = self.hover_colour
-
-            if mouse_up:
-                self.line_colour = self.moving_colour
-                match self.state:
-                    case "ahead":
-                        self.state = "moving_to_diverge"
-                    case "diverge":
-                        self.state = "moving_to_ahead"
-                    case "moving_to_ahead":
-                        self.state = "moving_to_diverge"
-                    case "moving_to_diverge":
-                        self.state = "moving_to_ahead"
-        elif self.state == "ahead":
-            self.line_colour = self.ahead_colour
-        elif self.state == "diverge":
-            self.line_colour = self.diverge_colour
-
-
     def draw(self):
         #pygame.draw.rect(self.display, (255, 0, 0), self.rect)
 
@@ -154,5 +162,36 @@ class BasicPoint():
                 if self.line_end[self.end_pos_index] == self.diverge_vpos:
                     self.state = "diverge"
 
-        pygame.draw.line(self.display, self.line_colour, self.line_start, self.line_end, 5)
-        pygame.draw.rect(self.display, self.boundary_colour, self.rect, 1)
+        pygame.draw.line(self.display, self.line_colour, self.line_start, self.line_end, self.thickness)
+        pygame.draw.rect(self.display, self.colours['boundary'], self.rect, 1)
+
+class CrossOver(Point):
+
+    def __init__(self, display, left, top,length=50, throw=20):
+        super().__init__(display, left,top, length, throw)
+
+        self.line1_start = [left, top]
+        self.line2_start = [left, top+throw]
+        self.line1_end = [left+length, top]
+        self.line2_end = [left+length, top+throw]
+
+        self.rect = pygame.Rect(left, top-self.fixed_offset, length+1, throw + 2*self.fixed_offset)
+
+    def draw(self):
+
+        match self.state:
+            case "moving_to_ahead":
+                self.line1_end[1] -= 1
+                self.line2_start[1] += 1
+                if self.line1_end[1] == self.top:
+                    self.state = "ahead"
+            case "moving_to_diverge":
+                self.line1_end[1] += 1
+                self.line2_start[1] -= 1
+                if self.line1_end[1] == self.top+self.throw:
+                    self.state = "diverge"
+
+        pygame.draw.line(self.display, self.line_colour, self.line1_start, self.line1_end, self.thickness)
+        pygame.draw.line(self.display, self.line_colour, self.line2_start, self.line2_end, self.thickness)
+
+        pygame.draw.rect(self.display, self.colours['boundary'], self.rect, 1)
