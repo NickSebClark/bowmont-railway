@@ -12,7 +12,7 @@ screen = pygame.display.set_mode((800, 600))
 
 layout = Layout()
 
-layout_pos = (100,100)
+layout_pos = (10,30)
 
 running = True
 mouse_up = False

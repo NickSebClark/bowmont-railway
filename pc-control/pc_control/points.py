@@ -3,7 +3,7 @@ import json
 
 def get_colours():
     with open('settings.json') as settings:
-        return json.load(settings)["colours"]
+        return json.load(settings)["point_colours"]
     
 class Point():
 

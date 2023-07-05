@@ -2,6 +2,7 @@ import pygame
 
 from pc_control.points import StraightPoint, CrossOver
 from pc_control.track import Track
+from pc_control.signals import Signal
 
 class Layout(pygame.Surface):
 
@@ -21,6 +22,8 @@ class Layout(pygame.Surface):
                        StraightPoint(self, 200,100, type="left_up"),
                        StraightPoint(self, 200,200, type="left_down"),
                        CrossOver(self,75,320)]
+        
+        self.signals = [Signal(self, 10, 10)]
 
         self.sections = [Track(self, [[(100, 100), (150,100)],
                                       [(150, 98), (150,127)],
@@ -31,10 +34,12 @@ class Layout(pygame.Surface):
         self.fill((0,0,0))
         pygame.draw.rect(self, (255,255,255), self.get_rect(), 1)
 
+        for signal in self.signals:
+            signal.update_state(mouse_pos, mouse_up)
+            signal.draw()
+
         for point in self.points:
             point.update_state(mouse_pos, mouse_up)
-        
-        for point in self.points:
             point.draw()
 
         for section in self.sections:
