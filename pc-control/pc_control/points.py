@@ -1,13 +1,28 @@
 import pygame
 import json
+from typing import Tuple
+
 
 def get_colours():
-    with open('settings.json') as settings:
+    with open("settings.json") as settings:
         return json.load(settings)["point_colours"]
-    
-class Point():
 
-    def __init__(self, display, left, top, length=50, throw=20):
+
+class Point:
+    """Parent Point class intended to be overridden.
+    Maintains a point state: ahead, diverge, moving_to_ahead, moving_to_diverge.
+    """
+
+    def __init__(self, display: pygame.Surface, left: int, top: int, length: int = 50, throw: int = 20):
+        """Sets up the object with key class data.
+
+        Args:
+            display (pygame.Surface): Surface to draw the point on.
+            left (int): Draw position
+            top (int): Draw position
+            length (int, optional): Length of point. Defaults to 50.
+            throw (int, optional): Width of point throw. Defaults to 20.
+        """
         self.left = left
         self.top = top
         self.display = display
@@ -17,36 +32,48 @@ class Point():
         self.thickness = 5
         self.colours = get_colours()
 
-        self.line_colour = self.colours['ahead']
+        self.line_colour = self.colours["ahead"]
 
         self.state = "ahead"
 
-        self.rect = pygame.Rect(0,0,0,0)
-    
-    def update_state(self, mouse_pos, mouse_up):
-            if self.rect.collidepoint(mouse_pos):
-                
-                if self.state == "ahead" or self.state == "diverge":
-                    self.line_colour = self.colours['hover']
+        self.rect = pygame.Rect(0, 0, 0, 0)
 
-                if mouse_up:
-                    self.line_colour = self.colours['moving']
-                    match self.state:
-                        case "ahead":
-                            self.state = "moving_to_diverge"
-                        case "diverge":
-                            self.state = "moving_to_ahead"
-                        case "moving_to_ahead":
-                            self.state = "moving_to_diverge"
-                        case "moving_to_diverge":
-                            self.state = "moving_to_ahead"
-            elif self.state == "ahead":
-                self.line_colour = self.colours['ahead']
-            elif self.state == "diverge":
-                self.line_colour = self.colours['diverge']
+    def update_state(self, mouse_pos: Tuple[int, int], mouse_up: bool):
+        """Called to check if the point has been clicked and update the state if necessary
+
+        Args:
+            mouse_pos (Tuple[int, int]): Mouse position
+            mouse_up (bool): Mouse up event?
+        """
+        if self.rect.collidepoint(mouse_pos):  # is the mouse in the bounding rect?
+            # mouse is hovering
+            if self.state == "ahead" or self.state == "diverge":
+                self.line_colour = self.colours["hover"]
+
+            # have we clicked on the point?
+            if mouse_up:
+                self.line_colour = self.colours["moving"]
+                match self.state:
+                    case "ahead":
+                        self.state = "moving_to_diverge"
+                    case "diverge":
+                        self.state = "moving_to_ahead"
+                    case "moving_to_ahead":
+                        self.state = "moving_to_diverge"
+                    case "moving_to_diverge":
+                        self.state = "moving_to_ahead"
+        elif self.state == "ahead":
+            self.line_colour = self.colours["ahead"]
+        elif self.state == "diverge":
+            self.line_colour = self.colours["diverge"]
+
+    def draw(self):
+        pass
+
 
 class StraightPoint(Point):
     """
+    Basic straight point with a single throw.
     types:
     left_up
     left_down
@@ -59,8 +86,22 @@ class StraightPoint(Point):
 
     possible states: ahead, diverge, moving_to_ahead, moving_to_diverge
     """
-    def __init__(self, display, left, top, type="left_up", length=50, throw=20):
 
+    def __init__(
+        self, display: pygame.surface, left: int, top: int, type: str = "left_up", length: int = 50, throw: int = 20
+    ):
+        """Sets up the object.
+
+        Args:
+            display (pygame.surface): Surface to draw on
+            left (int): Draw position of point start.
+            top (int): Draw position of point start.
+            type (str, optional): Point type. Describes which direction to draw and throw.
+                                  Possible types: left_up, left_down, right_up, right_down, up_right, up_left, down_right, down_left.
+                                  Defaults to "left_up".
+            length (int, optional): Length of point. Defaults to 50.
+            throw (int, optional): Distance to throw. Defaults to 20.
+        """
         super().__init__(display, left, top, length, throw)
 
         self.line_start = (left, top)
@@ -68,89 +109,89 @@ class StraightPoint(Point):
         match type:
             case "left_up":
                 self.increment = -1
-                box_top = top-self.fixed_offset-throw
+                box_top = top - self.fixed_offset - throw
                 box_left = left
-                box_width = self.length+1
-                box_height = self.throw+2*self.fixed_offset
-                self.line_end = [left+self.length, top]
+                box_width = self.length + 1
+                box_height = self.throw + 2 * self.fixed_offset
+                self.line_end = [left + self.length, top]
                 self.end_pos_index = 1
                 self.ahead_pos = top
-                self.diverge_vpos = top-self.throw        
+                self.diverge_vpos = top - self.throw
             case "left_down":
                 self.increment = 1
-                box_top = top-self.fixed_offset
+                box_top = top - self.fixed_offset
                 box_left = left
-                box_width = self.length+1
-                box_height = self.throw+2*self.fixed_offset
-                self.line_end = [left+self.length, top]
+                box_width = self.length + 1
+                box_height = self.throw + 2 * self.fixed_offset
+                self.line_end = [left + self.length, top]
                 self.end_pos_index = 1
                 self.ahead_pos = top
-                self.diverge_vpos = top+self.throw
+                self.diverge_vpos = top + self.throw
             case "right_up":
                 self.increment = -1
-                box_top = top-self.fixed_offset-throw
-                box_left = left-self.length
-                box_width = self.length+1
-                box_height = self.throw+2*self.fixed_offset
-                self.line_end = [left-self.length, top]
+                box_top = top - self.fixed_offset - throw
+                box_left = left - self.length
+                box_width = self.length + 1
+                box_height = self.throw + 2 * self.fixed_offset
+                self.line_end = [left - self.length, top]
                 self.end_pos_index = 1
                 self.ahead_pos = top
-                self.diverge_vpos = top-self.throw
+                self.diverge_vpos = top - self.throw
             case "right_down":
                 self.increment = 1
-                box_top = top-self.fixed_offset
-                box_left = left-self.length
-                box_width = self.length+1
-                box_height = self.throw+2*self.fixed_offset
-                self.line_end = [left-self.length, top]
+                box_top = top - self.fixed_offset
+                box_left = left - self.length
+                box_width = self.length + 1
+                box_height = self.throw + 2 * self.fixed_offset
+                self.line_end = [left - self.length, top]
                 self.end_pos_index = 1
                 self.ahead_pos = top
-                self.diverge_vpos = top+self.throw
+                self.diverge_vpos = top + self.throw
             case "up_right":
                 self.increment = 1
-                box_top = top-self.length
-                box_left = left-self.fixed_offset
-                box_width = throw+2*self.fixed_offset
-                box_height = self.length+1
-                self.line_end = [left, top-self.length]
+                box_top = top - self.length
+                box_left = left - self.fixed_offset
+                box_width = throw + 2 * self.fixed_offset
+                box_height = self.length + 1
+                self.line_end = [left, top - self.length]
                 self.end_pos_index = 0
                 self.ahead_pos = left
-                self.diverge_vpos = left+self.throw
+                self.diverge_vpos = left + self.throw
             case "up_left":
                 self.increment = -1
-                box_top = top-self.length
-                box_left = left-self.throw-self.fixed_offset
-                box_width = throw+2*self.fixed_offset
-                box_height = self.length+1
-                self.line_end = [left, top-self.length]
+                box_top = top - self.length
+                box_left = left - self.throw - self.fixed_offset
+                box_width = throw + 2 * self.fixed_offset
+                box_height = self.length + 1
+                self.line_end = [left, top - self.length]
                 self.end_pos_index = 0
                 self.ahead_pos = left
-                self.diverge_vpos = left-self.throw                
+                self.diverge_vpos = left - self.throw
             case "down_right":
                 self.increment = 1
                 box_top = top
-                box_left = left-self.fixed_offset
-                box_width = throw+2*self.fixed_offset
-                box_height = self.length+1
-                self.line_end = [left, top+self.length]
+                box_left = left - self.fixed_offset
+                box_width = throw + 2 * self.fixed_offset
+                box_height = self.length + 1
+                self.line_end = [left, top + self.length]
                 self.end_pos_index = 0
                 self.ahead_pos = left
-                self.diverge_vpos = left+self.throw
+                self.diverge_vpos = left + self.throw
             case "down_left":
                 self.increment = -1
                 box_top = top
-                box_left = left-self.throw-self.fixed_offset
-                box_width = throw+2*self.fixed_offset
-                box_height = self.length+1
-                self.line_end = [left, top+self.length]
+                box_left = left - self.throw - self.fixed_offset
+                box_width = throw + 2 * self.fixed_offset
+                box_height = self.length + 1
+                self.line_end = [left, top + self.length]
                 self.end_pos_index = 0
                 self.ahead_pos = left
-                self.diverge_vpos = left-self.throw
+                self.diverge_vpos = left - self.throw
 
         self.rect = pygame.Rect(box_left, box_top, box_width, box_height)
 
     def draw(self):
-        #pygame.draw.rect(self.display, (255, 0, 0), self.rect)
+        """Draw the point. Increment the position if moving."""
 
         match self.state:
             case "moving_to_ahead":
@@ -163,22 +204,34 @@ class StraightPoint(Point):
                     self.state = "diverge"
 
         pygame.draw.line(self.display, self.line_colour, self.line_start, self.line_end, self.thickness)
-        pygame.draw.rect(self.display, self.colours['boundary'], self.rect, 1)
+        pygame.draw.rect(self.display, self.colours["boundary"], self.rect, 1)
+
 
 class CrossOver(Point):
+    """Cross over point type. Single click to change point from ahead to cross-over"""
 
-    def __init__(self, display, left, top,length=50, throw=20):
-        super().__init__(display, left,top, length, throw)
+    def __init__(self, display: pygame.surface, left: int, top: int, length: int = 50, throw: int = 20):
+        """Setup the point object.
+
+        Args:
+            display (pygame.surface): Display to draw on.
+            left (int): Draw position of point start.
+            top (int): Draw position of point start.
+            length (int, optional): Length of point. Defaults to 50.
+            throw (int, optional): Width of throw. Defaults to 20.
+        """
+
+        super().__init__(display, left, top, length, throw)
 
         self.line1_start = [left, top]
-        self.line2_start = [left, top+throw]
-        self.line1_end = [left+length, top]
-        self.line2_end = [left+length, top+throw]
+        self.line2_start = [left, top + throw]
+        self.line1_end = [left + length, top]
+        self.line2_end = [left + length, top + throw]
 
-        self.rect = pygame.Rect(left, top-self.fixed_offset, length+1, throw + 2*self.fixed_offset)
+        self.rect = pygame.Rect(left, top - self.fixed_offset, length + 1, throw + 2 * self.fixed_offset)
 
     def draw(self):
-
+        """Draw the point. Increment the position if moving."""
         match self.state:
             case "moving_to_ahead":
                 self.line1_end[1] -= 1
@@ -188,10 +241,10 @@ class CrossOver(Point):
             case "moving_to_diverge":
                 self.line1_end[1] += 1
                 self.line2_start[1] -= 1
-                if self.line1_end[1] == self.top+self.throw:
+                if self.line1_end[1] == self.top + self.throw:
                     self.state = "diverge"
 
         pygame.draw.line(self.display, self.line_colour, self.line1_start, self.line1_end, self.thickness)
         pygame.draw.line(self.display, self.line_colour, self.line2_start, self.line2_end, self.thickness)
 
-        pygame.draw.rect(self.display, self.colours['boundary'], self.rect, 1)
+        pygame.draw.rect(self.display, self.colours["boundary"], self.rect, 1)

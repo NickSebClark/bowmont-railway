@@ -1,43 +1,59 @@
+"""PC Control app top-level"""
+
 import pygame
 from pc_control.layout import Layout
 
-pygame.init()
-pygame.font.init()
 
-title_font = pygame.font.SysFont('Calibri', 30)
-title_surface = title_font.render('Bowmont Railway', True, (255, 255, 255))
+def main():
+    """Basic pygame setup and main event loop."""
 
-# Set up the display
-screen = pygame.display.set_mode((800, 600))
+    pygame.init()
+    pygame.font.init()
 
-layout = Layout()
+    # Title font
+    title_font = pygame.font.SysFont("Calibri", 45)
+    title_surface = title_font.render("BOWMONT RAILWAY", True, (255, 255, 255))
+    sign_outline = pygame.Rect(74, 5, 389, 40)
 
-layout_pos = (10,30)
+    # Set up the display
+    screen = pygame.display.set_mode((800, 600))
 
-running = True
-mouse_up = False
+    layout = Layout()
+    layout_pos = (5, 50)
 
-while running:
-    # Handle events
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.MOUSEBUTTONUP:
-            mouse_up = True
+    image = pygame.image.load("resources/sign_small.png")
 
-    mouse_pos = pygame.mouse.get_pos()
+    running = True
 
-    screen.fill((0, 0, 0))
+    while running:
+        mouse_up = False
 
-    layout.draw((mouse_pos[0] - layout_pos[0], mouse_pos[1] - layout_pos[1]), mouse_up)
+        # Handle events
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.MOUSEBUTTONUP:
+                mouse_up = True
 
-    mouse_up = False
+        mouse_pos = pygame.mouse.get_pos()
 
-    screen.blit(layout, layout_pos)
-    screen.blit(title_surface, (0,0))
+        screen.fill((0, 0, 0))
 
-    pygame.display.flip()
+        # Draw the layout with the mouse position relative to the layout pos.
+        layout.draw((mouse_pos[0] - layout_pos[0], mouse_pos[1] - layout_pos[1]), mouse_up)
 
-    pygame.time.wait(10)
+        # Blit the layout and text
+        screen.blit(layout, layout_pos)
+        screen.blit(title_surface, (78, 5))
+        screen.blit(image, (5, 5))
+        pygame.draw.rect(screen, (255, 255, 255), sign_outline, 2)
 
-pygame.quit()
+        pygame.display.flip()
+
+        pygame.time.wait(10)
+
+    pygame.quit()
+
+
+if __name__ == "__main__":
+    main()
