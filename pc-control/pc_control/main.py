@@ -11,9 +11,9 @@ def main():
     pygame.font.init()
 
     # Title font
-    title_font = pygame.font.SysFont("Calibri", 45)
-    title_surface = title_font.render("BOWMONT RAILWAY", True, (255, 255, 255))
-    sign_outline = pygame.Rect(74, 5, 389, 40)
+    title_font = pygame.font.Font("resources/britrdn_.ttf", 39)
+    title_surface = title_font.render("Bowmont Town", True, (255, 255, 255))
+    sign_outline = pygame.Rect(74, 5, 260, 40)
 
     # Set up the display
     screen = pygame.display.set_mode((800, 600))
@@ -44,7 +44,7 @@ def main():
 
         # Blit the layout and text
         screen.blit(layout, layout_pos)
-        screen.blit(title_surface, (78, 5))
+        screen.blit(title_surface, (80, 7))
         screen.blit(image, (5, 5))
         pygame.draw.rect(screen, (255, 255, 255), sign_outline, 2)
 
