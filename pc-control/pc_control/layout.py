@@ -9,8 +9,8 @@ from typing import Tuple
 class Layout(pygame.Surface):
     """Draws the bowmont water layout diagram."""
 
-    width = 400
-    height = 400
+    width = 790
+    height = 545
 
     def __init__(self):
         """Creates all the objects in the layout drawing."""

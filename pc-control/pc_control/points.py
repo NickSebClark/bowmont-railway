@@ -1,11 +1,12 @@
 import pygame
 import json
 from typing import Tuple
+import tomllib
 
 
 def get_colours():
-    with open("settings.json") as settings:
-        return json.load(settings)["point_colours"]
+    with open("settings.toml", "rb") as f:
+        return tomllib.load(f)["point_colours"]
 
 
 class Point:
