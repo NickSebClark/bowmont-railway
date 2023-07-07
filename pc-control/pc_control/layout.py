@@ -16,26 +16,18 @@ class Layout(pygame.Surface):
         """Creates all the objects in the layout drawing."""
         super().__init__((Layout.width, Layout.height))
 
-        self.points: list[Point] = [
-            StraightPoint(self, 50, 100, type="right_up"),
-            StraightPoint(self, 00, 200, type="right_down"),
-            StraightPoint(self, 50, 175, type="up_right"),
-            StraightPoint(self, 200, 175, type="up_left"),
-            StraightPoint(self, 50, 250, type="down_right"),
-            StraightPoint(self, 200, 250, type="down_left"),
-            StraightPoint(self, 200, 100, type="left_up"),
-            StraightPoint(self, 200, 200, type="left_down"),
-            CrossOver(self, 75, 320),
-        ]
-
         self.signals = [Signal(self, 10, 10)]
 
-        self.sections = [
-            Track(
-                self, [[(100, 100), (150, 100)], [(150, 98), (150, 127)], [(150, 125), (125, 125)]], endstop="vertical"
-            ),
-            Track(self, [[(350, 175), (350, 225)]], endstop="horizontal"),
-        ]
+        sw1 = StraightPoint(self, 150, 100, type="right_up")
+        sw1_enter, sw1_exit, sw1_diverge = sw1.get_connections()
+
+        sw2 = StraightPoint(self, 450, 100, type="right_up")
+        sw2_enter, sw2_exit, sw2_diverge = sw2.get_connections()
+
+        self.points: list[Point] = [sw1, sw2]
+
+        tr1 = Track(self, sw1_enter, sw2_exit)
+        self.tracks = [tr1]
 
     def draw(self, mouse_pos: Tuple[int, int], mouse_up: bool):
         """Iterates through the items and draws them. Calls update_state with the mouse status.
@@ -55,5 +47,5 @@ class Layout(pygame.Surface):
             point.update_state(mouse_pos, mouse_up)
             point.draw()
 
-        for section in self.sections:
-            section.draw()
+        for track in self.tracks:
+            track.draw()

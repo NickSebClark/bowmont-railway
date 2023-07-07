@@ -22,6 +22,7 @@ def main():
     layout_pos = (5, 50)
 
     image = pygame.image.load("resources/sign_small.png")
+    roundel = pygame.image.load("resources/roundel.png")
 
     running = True
 
@@ -46,6 +47,7 @@ def main():
         screen.blit(layout, layout_pos)
         screen.blit(title_surface, (80, 7))
         screen.blit(image, (5, 5))
+        screen.blit(roundel, (755, 5))
         pygame.draw.rect(screen, (255, 255, 255), sign_outline, 2)
 
         pygame.display.flip()

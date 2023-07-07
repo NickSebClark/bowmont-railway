@@ -6,7 +6,9 @@ class Track:
     def __init__(
         self,
         display: pygame.surface,
-        sections: list[Tuple[Tuple[int, int], Tuple[int, int]]],
+        start: Tuple[int, int],
+        end: Tuple[int, int],
+        corners: list[Tuple[int, int]] = [],
         width: int = 5,
         endstop: str = "None",
     ):
@@ -14,23 +16,24 @@ class Track:
 
         Args:
             display (pygame.surface): Surface to draw on
-            sections (list[Tuple[Tuple[int, int], Tuple[int, int]]]): Each element in the outer list represents a line section.
-                                                                     This is comprised of two, two element tuples which are the start end end point of the line.
+            start (Tuple[int,int]): beginning of track
+            stop (Tuple[int,int]): end of track
+            corners (list[Tuple[int,int]]): any additional corners
             width (int, optional): Line width. Defaults to 5.
             endstop (str, optional): horizontal or vertical. Defaults to "None".
         """
         self.display = display
-        self.sections = sections
+        self.vertices = [start] + corners + [end]
         self.line_colour = (255, 255, 255)
         self.width = width
         self.endstop = endstop
 
     def draw(self):
         """Draw the sections to the display and add the endstop if one is specified."""
-        for section in self.sections:
-            pygame.draw.line(self.display, self.line_colour, section[0], section[1], self.width)
+        for i in range(len(self.vertices) - 1):
+            pygame.draw.line(self.display, self.line_colour, self.vertices[i], self.vertices[i + 1], self.width)
 
-            end_point = self.sections[-1][1]
+        end_point = self.vertices[-1]
 
         if self.endstop == "vertical":
             pygame.draw.line(
