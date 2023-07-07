@@ -30,7 +30,12 @@ class Layout(pygame.Surface):
 
         self.signals = [Signal(self, 10, 10)]
 
-        self.sections = [Track(self, [[(100, 100), (150, 100)], [(150, 98), (150, 127)], [(150, 125), (125, 125)]])]
+        self.sections = [
+            Track(
+                self, [[(100, 100), (150, 100)], [(150, 98), (150, 127)], [(150, 125), (125, 125)]], endstop="vertical"
+            ),
+            Track(self, [[(350, 175), (350, 225)]], endstop="horizontal"),
+        ]
 
     def draw(self, mouse_pos: Tuple[int, int], mouse_up: bool):
         """Iterates through the items and draws them. Calls update_state with the mouse status.
