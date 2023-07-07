@@ -26,6 +26,7 @@ class Track:
         self.endstop = endstop
 
     def draw(self):
+        """Draw the sections to the display and add the endstop if one is specified."""
         for section in self.sections:
             pygame.draw.line(self.display, self.line_colour, section[0], section[1], self.width)
 
