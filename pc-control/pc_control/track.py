@@ -30,8 +30,7 @@ class Track:
 
     def draw(self):
         """Draw the sections to the display and add the endstop if one is specified."""
-        for i in range(len(self.vertices) - 1):
-            pygame.draw.line(self.display, self.line_colour, self.vertices[i], self.vertices[i + 1], self.width)
+        pygame.draw.lines(self.display, self.line_colour, False, self.vertices, self.width)
 
         end_point = self.vertices[-1]
 

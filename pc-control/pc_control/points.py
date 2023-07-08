@@ -39,6 +39,10 @@ class Point:
 
         self.name = name
 
+        # label_font = pygame.font.Font("resources/britrdn_.ttf", 10)
+        label_font = pygame.font.SysFont("MS Reference Sans Serif", 10)
+        self.label_surface = label_font.render(self.name, True, self.colours["boundary"])
+
         self.rect = pygame.Rect(0, 0, 0, 0)
 
     def update_state(self, mouse_pos: Tuple[int, int], mouse_up: bool):
@@ -119,10 +123,10 @@ class StraightPoint(Point):
         match type:
             case "left_up":
                 self.increment = -1
-                box_top = top - self.fixed_offset - throw
-                box_left = left
-                box_width = self.length + 1
-                box_height = self.throw + 2 * self.fixed_offset
+                self.box_top = top - self.fixed_offset - throw
+                self.box_left = left
+                self.box_width = self.length + 1
+                self.box_height = self.throw + 2 * self.fixed_offset
                 self.line_end = [left + self.length, top]
                 self.end_pos_index = 1
                 self.ahead_pos = top
@@ -130,10 +134,10 @@ class StraightPoint(Point):
                 self.diverge_coord = [self.line_end[0], self.diverge_pos]
             case "left_down":
                 self.increment = 1
-                box_top = top - self.fixed_offset
-                box_left = left
-                box_width = self.length + 1
-                box_height = self.throw + 2 * self.fixed_offset
+                self.box_top = top - self.fixed_offset
+                self.box_left = left
+                self.box_width = self.length + 1
+                self.box_height = self.throw + 2 * self.fixed_offset
                 self.line_end = [left + self.length, top]
                 self.end_pos_index = 1
                 self.ahead_pos = top
@@ -141,10 +145,10 @@ class StraightPoint(Point):
                 self.diverge_coord = [self.line_end[0], self.diverge_pos]
             case "right_up":
                 self.increment = -1
-                box_top = top - self.fixed_offset - throw
-                box_left = left - self.length
-                box_width = self.length + 1
-                box_height = self.throw + 2 * self.fixed_offset
+                self.box_top = top - self.fixed_offset - throw
+                self.box_left = left - self.length
+                self.box_width = self.length + 1
+                self.box_height = self.throw + 2 * self.fixed_offset
                 self.line_end = [left - self.length, top]
                 self.end_pos_index = 1
                 self.ahead_pos = top
@@ -152,10 +156,10 @@ class StraightPoint(Point):
                 self.diverge_coord = [self.line_end[0], self.diverge_pos]
             case "right_down":
                 self.increment = 1
-                box_top = top - self.fixed_offset
-                box_left = left - self.length
-                box_width = self.length + 1
-                box_height = self.throw + 2 * self.fixed_offset
+                self.box_top = top - self.fixed_offset
+                self.box_left = left - self.length
+                self.box_width = self.length + 1
+                self.box_height = self.throw + 2 * self.fixed_offset
                 self.line_end = [left - self.length, top]
                 self.end_pos_index = 1
                 self.ahead_pos = top
@@ -163,10 +167,10 @@ class StraightPoint(Point):
                 self.diverge_coord = [self.line_end[0], self.diverge_pos]
             case "up_right":
                 self.increment = 1
-                box_top = top - self.length
-                box_left = left - self.fixed_offset
-                box_width = throw + 2 * self.fixed_offset
-                box_height = self.length + 1
+                self.box_top = top - self.length
+                self.box_left = left - self.fixed_offset
+                self.box_width = throw + 2 * self.fixed_offset
+                self.box_height = self.length + 1
                 self.line_end = [left, top - self.length]
                 self.end_pos_index = 0
                 self.ahead_pos = left
@@ -174,10 +178,10 @@ class StraightPoint(Point):
                 self.diverge_coord = [self.diverge_pos, self.line_end[1]]
             case "up_left":
                 self.increment = -1
-                box_top = top - self.length
-                box_left = left - self.throw - self.fixed_offset
-                box_width = throw + 2 * self.fixed_offset
-                box_height = self.length + 1
+                self.box_top = top - self.length
+                self.box_left = left - self.throw - self.fixed_offset
+                self.box_width = throw + 2 * self.fixed_offset
+                self.box_height = self.length + 1
                 self.line_end = [left, top - self.length]
                 self.end_pos_index = 0
                 self.ahead_pos = left
@@ -185,10 +189,10 @@ class StraightPoint(Point):
                 self.diverge_coord = [self.diverge_pos, self.line_end[1]]
             case "down_right":
                 self.increment = 1
-                box_top = top
-                box_left = left - self.fixed_offset
-                box_width = throw + 2 * self.fixed_offset
-                box_height = self.length + 1
+                self.box_top = top
+                self.box_left = left - self.fixed_offset
+                self.box_width = throw + 2 * self.fixed_offset
+                self.box_height = self.length + 1
                 self.line_end = [left, top + self.length]
                 self.end_pos_index = 0
                 self.ahead_pos = left
@@ -196,17 +200,17 @@ class StraightPoint(Point):
                 self.diverge_coord = [self.diverge_pos, self.line_end[1]]
             case "down_left":
                 self.increment = -1
-                box_top = top
-                box_left = left - self.throw - self.fixed_offset
-                box_width = throw + 2 * self.fixed_offset
-                box_height = self.length + 1
+                self.box_top = top
+                self.box_left = left - self.throw - self.fixed_offset
+                self.box_width = throw + 2 * self.fixed_offset
+                self.box_height = self.length + 1
                 self.line_end = [left, top + self.length]
                 self.end_pos_index = 0
                 self.ahead_pos = left
                 self.diverge_pos = left - self.throw
                 self.diverge_coord = [self.diverge_pos, self.line_end[1]]
 
-        self.rect = pygame.Rect(box_left, box_top, box_width, box_height)
+        self.rect = pygame.Rect(self.box_left, self.box_top, self.box_width, self.box_height)
 
     def get_connections(self) -> Tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int]]:
         return self.line_start, self.line_end.copy(), self.diverge_coord
@@ -227,11 +231,13 @@ class StraightPoint(Point):
         pygame.draw.line(self.display, self.line_colour, self.line_start, self.line_end, self.thickness)
         pygame.draw.rect(self.display, self.colours["boundary"], self.rect, 1)
 
+        self.display.blit(self.label_surface, (self.box_left + self.box_width, self.box_top + self.box_height))
+
 
 class CrossOver(Point):
     """Cross over point type. Single click to change point from ahead to cross-over"""
 
-    def __init__(self, display: pygame.surface, left: int, top: int, length: int = 50, throw: int = 20):
+    def __init__(self, display: pygame.surface, left: int, top: int, length: int = 50, throw: int = 20, name: str = ""):
         """Setup the point object.
 
         Args:
@@ -242,7 +248,7 @@ class CrossOver(Point):
             throw (int, optional): Width of throw. Defaults to 20.
         """
 
-        super().__init__(display, left, top, length, throw)
+        super().__init__(display, left, top, length, throw, name)
 
         self.line1_start = [left, top]
         self.line2_start = [left, top + throw]
@@ -252,7 +258,7 @@ class CrossOver(Point):
         self.rect = pygame.Rect(left, top - self.fixed_offset, length + 1, throw + 2 * self.fixed_offset)
 
     def get_connections(self):
-        return self.line1_start, self.line2_start, self.line1_end, self.line2_end
+        return self.line1_start.copy(), self.line2_start.copy(), self.line1_end.copy(), self.line2_end.copy()
 
     def draw(self):
         """Draw the point. Increment the position if moving."""
@@ -272,3 +278,5 @@ class CrossOver(Point):
         pygame.draw.line(self.display, self.line_colour, self.line2_start, self.line2_end, self.thickness)
 
         pygame.draw.rect(self.display, self.colours["boundary"], self.rect, 1)
+
+        self.display.blit(self.label_surface, (self.rect.left + self.rect.width, self.rect.top + self.rect.height))

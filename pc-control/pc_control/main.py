@@ -10,13 +10,16 @@ def main():
     pygame.init()
     pygame.font.init()
 
+    width = 600
+    height = 400
+
     # Title font
     title_font = pygame.font.Font("resources/britrdn_.ttf", 39)
     title_surface = title_font.render("Bowmont Town", True, (255, 255, 255))
-    sign_outline = pygame.Rect(74, 5, 260, 40)
+    sign_outline = pygame.Rect(width / 2 - title_surface.get_width() / 2 - 10, 5, title_surface.get_width() + 20, 40)
 
     # Set up the display
-    screen = pygame.display.set_mode((800, 600))
+    screen = pygame.display.set_mode((width, height))
 
     layout = Layout()
     layout_pos = (5, 50)
@@ -45,9 +48,9 @@ def main():
 
         # Blit the layout and text
         screen.blit(layout, layout_pos)
-        screen.blit(title_surface, (80, 7))
+        screen.blit(title_surface, (width / 2 - title_surface.get_width() / 2, 7))
         screen.blit(image, (5, 5))
-        screen.blit(roundel, (755, 5))
+        screen.blit(roundel, (width - 40 - 5, 5))
         pygame.draw.rect(screen, (255, 255, 255), sign_outline, 2)
 
         pygame.display.flip()
