@@ -7,6 +7,8 @@ from pc_control.layout import Layout
 def main():
     """Basic pygame setup and main event loop."""
 
+    pygame.display.set_caption("Bowmont Town Layout PC Control")
+
     pygame.init()
     pygame.font.init()
 

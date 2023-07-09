@@ -2,6 +2,7 @@ import pygame
 import json
 from typing import Tuple
 import tomllib
+import pygame.gfxdraw
 
 
 def get_colours():
@@ -120,6 +121,8 @@ class StraightPoint(Point):
 
         self.line_start = (left, top)
 
+        self.type = type
+
         match type:
             case "left_up":
                 self.increment = -1
@@ -228,7 +231,25 @@ class StraightPoint(Point):
                 if self.line_end[self.end_pos_index] == self.diverge_pos:
                     self.state = "diverge"
 
-        pygame.draw.line(self.display, self.line_colour, self.line_start, self.line_end, self.thickness)
+        # pygame.draw.line(self.display, self.line_colour, self.line_start, self.line_end, self.thickness)
+
+        if self.type in ["left_up", "left_down", "right_up", "right_down"]:
+            points = [
+                (self.line_start[0], self.line_start[1] - 2),
+                (self.line_start[0], self.line_start[1] + 2),
+                (self.line_end[0], self.line_end[1] + 2),
+                (self.line_end[0], self.line_end[1] - 2),
+            ]
+        else:
+            points = [
+                (self.line_start[0] - 2, self.line_start[1]),
+                (self.line_start[0] + 2, self.line_start[1]),
+                (self.line_end[0] + 2, self.line_end[1]),
+                (self.line_end[0] - 2, self.line_end[1]),
+            ]
+
+        pygame.gfxdraw.filled_polygon(self.display, points, self.line_colour)
+        pygame.gfxdraw.aapolygon(self.display, points, self.line_colour)
         pygame.draw.rect(self.display, self.colours["boundary"], self.rect, 1)
 
         self.display.blit(self.label_surface, (self.box_left + self.box_width, self.box_top + self.box_height))
@@ -237,13 +258,16 @@ class StraightPoint(Point):
 class CrossOver(Point):
     """Cross over point type. Single click to change point from ahead to cross-over"""
 
-    def __init__(self, display: pygame.surface, left: int, top: int, length: int = 50, throw: int = 20, name: str = ""):
+    def __init__(
+        self, display: pygame.surface, left: int, top: int, type: str, length: int = 50, throw: int = 20, name: str = ""
+    ):
         """Setup the point object.
 
         Args:
             display (pygame.surface): Display to draw on.
             left (int): Draw position of point start.
             top (int): Draw position of point start.
+            type (str): which direction to move the point top_bottom or bottom_top
             length (int, optional): Length of point. Defaults to 50.
             throw (int, optional): Width of throw. Defaults to 20.
         """
@@ -255,6 +279,8 @@ class CrossOver(Point):
         self.line1_end = [left + length, top]
         self.line2_end = [left + length, top + throw]
 
+        self.type = type
+
         self.rect = pygame.Rect(left, top - self.fixed_offset, length + 1, throw + 2 * self.fixed_offset)
 
     def get_connections(self):
@@ -264,19 +290,137 @@ class CrossOver(Point):
         """Draw the point. Increment the position if moving."""
         match self.state:
             case "moving_to_ahead":
-                self.line1_end[1] -= 1
-                self.line2_start[1] += 1
-                if self.line1_end[1] == self.top:
-                    self.state = "ahead"
+                if self.type == "top_bottom":
+                    self.line1_end[1] -= 1
+                    self.line2_start[1] += 1
+                    if self.line1_end[1] == self.top:
+                        self.state = "ahead"
+                else:
+                    self.line1_start[1] -= 1
+                    self.line2_end[1] += 1
+                    if self.line1_start[1] == self.top:
+                        self.state = "ahead"
             case "moving_to_diverge":
-                self.line1_end[1] += 1
-                self.line2_start[1] -= 1
-                if self.line1_end[1] == self.top + self.throw:
-                    self.state = "diverge"
+                if self.type == "top_bottom":
+                    self.line1_end[1] += 1
+                    self.line2_start[1] -= 1
+                    if self.line1_end[1] == self.top + self.throw:
+                        self.state = "diverge"
+                else:
+                    self.line1_start[1] += 1
+                    self.line2_end[1] -= 1
+                    if self.line1_start[1] == self.top + self.throw:
+                        self.state = "diverge"
 
-        pygame.draw.line(self.display, self.line_colour, self.line1_start, self.line1_end, self.thickness)
-        pygame.draw.line(self.display, self.line_colour, self.line2_start, self.line2_end, self.thickness)
+        points1 = [
+            (self.line1_start[0], self.line1_start[1] - 2),
+            (self.line1_start[0], self.line1_start[1] + 2),
+            (self.line1_end[0], self.line1_end[1] + 2),
+            (self.line1_end[0], self.line1_end[1] - 2),
+        ]
+        pygame.gfxdraw.filled_polygon(self.display, points1, self.line_colour)
+        pygame.gfxdraw.aapolygon(self.display, points1, self.line_colour)
 
+        points2 = [
+            (self.line2_start[0], self.line2_start[1] - 2),
+            (self.line2_start[0], self.line2_start[1] + 2),
+            (self.line2_end[0], self.line2_end[1] + 2),
+            (self.line2_end[0], self.line2_end[1] - 2),
+        ]
+        pygame.gfxdraw.filled_polygon(self.display, points2, self.line_colour)
+        pygame.gfxdraw.aapolygon(self.display, points2, self.line_colour)
+
+        pygame.draw.rect(self.display, self.colours["boundary"], self.rect, 1)
+
+        self.display.blit(self.label_surface, (self.rect.left + self.rect.width, self.rect.top + self.rect.height))
+
+
+class Triple(Point):
+    def __init__(self, display: pygame.surface, left: int, top: int, length: int = 50, throw: int = 20, name: str = ""):
+        super().__init__(display, left, top, length, throw, name)
+
+        self.rect = pygame.Rect(
+            left - length, top - throw - self.fixed_offset, length + 1, 2 * throw + 2 * self.fixed_offset
+        )
+
+        self.enter = (left, top)
+        self.road_1 = (left - length, top - throw)
+        self.road_2 = (left - length, top)
+        self.road_3 = (left - length, top + throw)
+
+        self.line_end = [self.road_2[0], self.road_2[1]]
+
+        self.state = "road_2"
+
+    def update_state(self, mouse_pos: Tuple[int, int], mouse_up: bool):
+        """Called to check if the point has been clicked and update the state if necessary
+
+        Args:
+            mouse_pos (Tuple[int, int]): Mouse position
+            mouse_up (bool): Mouse up event?
+        """
+        if self.rect.collidepoint(mouse_pos):  # is the mouse in the bounding rect?
+            # mouse is hovering
+            if self.state in ["road_1", "road_2", "road_3"]:
+                self.line_colour = self.colours["hover"]
+
+            # have we clicked on the point?
+            if mouse_up:
+                self.line_colour = self.colours["moving"]
+                match self.state:
+                    case "road_1":
+                        self.state = "moving_to_road_2"
+                    case "road_2":
+                        self.state = "moving_to_road_3"
+                    case "road_3":
+                        self.state = "moving_to_road_1"
+                    case "moving_to_road_2":
+                        self.state = "moving_to_road_3"
+                    case "moving_to_road_3":
+                        self.state = "moving_to_road_1"
+                    case "moving_to_road_1":
+                        self.state = "moving_to_road_2"
+        elif self.state == "road_2":
+            self.line_colour = self.colours["ahead"]
+        elif self.state == "road_1" or self.state == "road_3":
+            self.line_colour = self.colours["diverge"]
+
+    def get_connections(self):
+        return self.enter, self.road_1, self.road_2, self.road_3
+
+    def draw(self):
+        match self.state:
+            case "moving_to_road_1":
+                if self.line_end[1] > self.road_1[1]:
+                    self.line_end[1] -= 1
+                else:
+                    self.line_end[1] += 1
+                if self.line_end[1] == self.road_1[1]:
+                    self.state = "road_1"
+            case "moving_to_road_2":
+                if self.line_end[1] > self.road_2[1]:
+                    self.line_end[1] -= 1
+                else:
+                    self.line_end[1] += 1
+                if self.line_end[1] == self.road_2[1]:
+                    self.state = "road_2"
+            case "moving_to_road_3":
+                if self.line_end[1] > self.road_3[1]:
+                    self.line_end[1] -= 1
+                else:
+                    self.line_end[1] += 1
+                if self.line_end[1] == self.road_3[1]:
+                    self.state = "road_3"
+
+        points = [
+            (self.enter[0], self.enter[1] - 2),
+            (self.enter[0], self.enter[1] + 2),
+            (self.line_end[0], self.line_end[1] + 2),
+            (self.line_end[0], self.line_end[1] - 2),
+        ]
+
+        pygame.gfxdraw.filled_polygon(self.display, points, self.line_colour)
+        pygame.gfxdraw.aapolygon(self.display, points, self.line_colour)
         pygame.draw.rect(self.display, self.colours["boundary"], self.rect, 1)
 
         self.display.blit(self.label_surface, (self.rect.left + self.rect.width, self.rect.top + self.rect.height))

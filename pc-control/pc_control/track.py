@@ -1,5 +1,6 @@
 import pygame
 from typing import Tuple
+import pygame.gfxdraw
 
 
 class Track:
@@ -30,7 +31,29 @@ class Track:
 
     def draw(self):
         """Draw the sections to the display and add the endstop if one is specified."""
-        pygame.draw.lines(self.display, self.line_colour, False, self.vertices, self.width)
+        # pygame.draw.lines(self.display, self.line_colour, False, self.vertices, self.width)
+
+        for i in range(len(self.vertices) - 1):
+            line_start = self.vertices[i]
+            line_end = self.vertices[i + 1]
+
+            if line_start[0] != line_end[0]:
+                points = [
+                    (line_start[0], line_start[1] - 2),
+                    (line_start[0], line_start[1] + 2),
+                    (line_end[0], line_end[1] + 2),
+                    (line_end[0], line_end[1] - 2),
+                ]
+            else:
+                points = [
+                    (line_start[0] - 2, line_start[1]),
+                    (line_start[0] + 2, line_start[1]),
+                    (line_end[0] + 2, line_end[1]),
+                    (line_end[0] - 2, line_end[1]),
+                ]
+
+            pygame.gfxdraw.filled_polygon(self.display, points, self.line_colour)
+            pygame.gfxdraw.aapolygon(self.display, points, self.line_colour)
 
         end_point = self.vertices[-1]
 
