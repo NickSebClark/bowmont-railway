@@ -4,3 +4,7 @@ moving = [235, 216, 52]
 ahead = [55, 235, 52]
 diverge = [52, 140, 235]
 boundary = [255,255,255]
+
+[serial]
+port = 'COM1'
+baud = 9600
