@@ -20,7 +20,7 @@ class Signal:
         self.left = left
         self.top = top
         self.display = display
-        self.width = 22
+        self.width = 21
         self.height = 40
         self.light_radius = 5
 

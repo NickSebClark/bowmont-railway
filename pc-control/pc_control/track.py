@@ -4,13 +4,14 @@ import pygame.gfxdraw
 
 
 class Track:
+    """Draw track. Uses aapolygons. Fixed width of 4 pixels."""
+
     def __init__(
         self,
         display: pygame.surface,
         start: Tuple[int, int],
         end: Tuple[int, int],
         corners: list[Tuple[int, int]] = [],
-        width: int = 5,
         endstop: str = "None",
     ):
         """Setup a section of track
@@ -20,13 +21,11 @@ class Track:
             start (Tuple[int,int]): beginning of track
             stop (Tuple[int,int]): end of track
             corners (list[Tuple[int,int]]): any additional corners
-            width (int, optional): Line width. Defaults to 5.
             endstop (str, optional): horizontal or vertical. Defaults to "None".
         """
         self.display = display
         self.vertices = [start] + corners + [end]
         self.line_colour = (255, 255, 255)
-        self.width = width
         self.endstop = endstop
 
     def draw(self):
@@ -63,7 +62,7 @@ class Track:
                 self.line_colour,
                 (end_point[0], end_point[1] - 5),
                 (end_point[0], end_point[1] + 5),
-                self.width,
+                4,
             )
         elif self.endstop == "horizontal":
             pygame.draw.line(
@@ -71,5 +70,5 @@ class Track:
                 self.line_colour,
                 (end_point[0] - 5, end_point[1]),
                 (end_point[0] + 5, end_point[1]),
-                self.width,
+                4,
             )

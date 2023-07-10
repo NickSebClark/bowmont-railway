@@ -29,7 +29,7 @@ class Layout(pygame.Surface):
         sw12 = StraightPoint(self, 20, 120, type="up_right", name="SW12")
         sw12_enter, sw12_exit, sw12_diverge = sw12.get_connections()
 
-        sw8 = StraightPoint(self, 230, 90, type="right_up", name="SW8")
+        sw8 = StraightPoint(self, 230, 90, type="right_up", name="SW8", name_pos="top")
         sw8_enter, sw8_exit, sw8_diverge = sw8.get_connections()
 
         sw5 = StraightPoint(self, 310, 110, type="right_up", name="SW5")
@@ -43,10 +43,10 @@ class Layout(pygame.Surface):
         sw9_enter, sw9_exit, sw9_diverge = sw9.get_connections()
 
         # needs to go the 'other way'
-        sw6 = CrossOver(self, 240, 160, "bottom_top", name="SW6")
+        sw6 = CrossOver(self, 240, 160, "bottom_top", name="SW6", name_pos="top")
         sw6_enter1, sw6_enter2, sw6_exit1, sw6_exit2 = sw6.get_connections()
 
-        sw4 = StraightPoint(self, 370, 250, type="right_up", name="SW4")
+        sw4 = StraightPoint(self, 370, 250, type="right_up", name="SW4", name_pos="top")
         sw4_enter, sw4_exit, sw4_diverge = sw4.get_connections()
 
         sw2 = StraightPoint(self, 440, 230, type="left_up", name="SW2")
@@ -83,10 +83,20 @@ class Layout(pygame.Surface):
             self, sw2_diverge, sw6_exit2, [(sw2_diverge[0] + 20, sw2_diverge[1]), (sw2_diverge[0] + 20, sw6_exit2[1])]
         )
 
-        self.underpass_bottom = (sw5_enter[0] + 70, sw5_enter[1] + 15)
-        self.underpass_top = (sw5_enter[0] + 87, sw5_enter[1] - 15)
-        tr14 = Track(self, sw6_exit1, self.underpass_bottom, [(sw5_enter[0] + 40, sw6_exit1[1])])
-        tr15 = Track(self, sw3_diverge, self.underpass_top, [(sw3_diverge[0] - 18, sw3_diverge[1])])
+        self.underpass_bottom = (sw5_enter[0] + 75, sw5_enter[1] + 15)
+        self.underpass_top = (self.underpass_bottom[0], sw5_enter[1] - 15)
+        tr14 = Track(
+            self,
+            sw6_exit1,
+            self.underpass_bottom,
+            [(sw5_enter[0] + 47, sw6_exit1[1]), (self.underpass_bottom[0], self.underpass_bottom[1] + 7)],
+        )
+        tr15 = Track(
+            self,
+            sw3_diverge,
+            self.underpass_top,
+            [(sw3_diverge[0] - 27, sw3_diverge[1]), (self.underpass_top[0], self.underpass_top[1] - 7)],
+        )
         tr16 = Track(self, sw4_exit, sw7_enter)
 
         slope = Track(self, sw2_exit, sw5_enter, [(sw2_exit[0] + 40, sw2_exit[1]), (sw2_exit[0] + 40, sw5_enter[1])])
@@ -164,8 +174,8 @@ class Layout(pygame.Surface):
             [
                 (self.underpass_bottom[0] - 17, self.underpass_bottom[1] - 2),
                 (self.underpass_bottom[0] - 12, self.underpass_bottom[1] - 7),
-                (self.underpass_bottom[0] + 28, self.underpass_bottom[1] - 7),
-                (self.underpass_bottom[0] + 33, self.underpass_bottom[1] - 2),
+                (self.underpass_bottom[0] + 12, self.underpass_bottom[1] - 7),
+                (self.underpass_bottom[0] + 17, self.underpass_bottom[1] - 2),
             ],
         )
 
@@ -176,7 +186,7 @@ class Layout(pygame.Surface):
             [
                 (self.underpass_bottom[0] - 17, self.underpass_bottom[1] - 29),
                 (self.underpass_bottom[0] - 12, self.underpass_bottom[1] - 24),
-                (self.underpass_bottom[0] + 28, self.underpass_bottom[1] - 24),
-                (self.underpass_bottom[0] + 33, self.underpass_bottom[1] - 29),
+                (self.underpass_bottom[0] + 12, self.underpass_bottom[1] - 24),
+                (self.underpass_bottom[0] + 17, self.underpass_bottom[1] - 29),
             ],
         )

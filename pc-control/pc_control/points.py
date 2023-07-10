@@ -13,9 +13,20 @@ def get_colours():
 class Point:
     """Parent Point class intended to be overridden.
     Maintains a point state: ahead, diverge, moving_to_ahead, moving_to_diverge.
+    Sets fixed track width of 5.
+    Draws bounding box and label.
     """
 
-    def __init__(self, display: pygame.Surface, left: int, top: int, length: int = 50, throw: int = 20, name: str = ""):
+    def __init__(
+        self,
+        display: pygame.Surface,
+        left: int,
+        top: int,
+        length: int = 50,
+        throw: int = 20,
+        name: str = "",
+        name_pos: str = "bottom",
+    ):
         """Sets up the object with key class data.
 
         Args:
@@ -24,6 +35,8 @@ class Point:
             top (int): Draw position
             length (int, optional): Length of point. Defaults to 50.
             throw (int, optional): Width of point throw. Defaults to 20.
+            name (str, optional): Label to draw. Defaults to "".
+            name_pos (str, optional): 'bottom' or 'top'. Where to draw the label.
         """
         self.left = left
         self.top = top
@@ -39,6 +52,8 @@ class Point:
         self.state = "ahead"
 
         self.name = name
+
+        self.name_pos = name_pos
 
         # label_font = pygame.font.Font("resources/britrdn_.ttf", 10)
         label_font = pygame.font.SysFont("MS Reference Sans Serif", 10)
@@ -76,7 +91,15 @@ class Point:
             self.line_colour = self.colours["diverge"]
 
     def draw(self):
-        pass
+        """Draw the bounding box and the label"""
+        pygame.draw.rect(self.display, self.colours["boundary"], self.rect, 1)
+
+        if self.name_pos == "bottom":
+            self.display.blit(
+                self.label_surface, (self.rect.left + self.rect.width, self.rect.top + self.rect.height - 2)
+            )
+        else:
+            self.display.blit(self.label_surface, (self.rect.left + self.rect.width, self.rect.top - 12))
 
 
 class StraightPoint(Point):
@@ -104,6 +127,7 @@ class StraightPoint(Point):
         length: int = 50,
         throw: int = 20,
         name: str = "",
+        name_pos: str = "bottom",
     ):
         """Sets up the object.
 
@@ -116,8 +140,10 @@ class StraightPoint(Point):
                                   Defaults to "left_up".
             length (int, optional): Length of point. Defaults to 50.
             throw (int, optional): Distance to throw. Defaults to 20.
+            name (str, optional): Label to draw. Defaults to "".
+            name_pos (str, optional): 'bottom' or 'top'. Where to draw the label.
         """
-        super().__init__(display, left, top, length, throw, name)
+        super().__init__(display, left, top, length, throw, name, name_pos)
 
         self.line_start = (left, top)
 
@@ -250,16 +276,23 @@ class StraightPoint(Point):
 
         pygame.gfxdraw.filled_polygon(self.display, points, self.line_colour)
         pygame.gfxdraw.aapolygon(self.display, points, self.line_colour)
-        pygame.draw.rect(self.display, self.colours["boundary"], self.rect, 1)
 
-        self.display.blit(self.label_surface, (self.box_left + self.box_width, self.box_top + self.box_height))
+        super().draw()
 
 
 class CrossOver(Point):
     """Cross over point type. Single click to change point from ahead to cross-over"""
 
     def __init__(
-        self, display: pygame.surface, left: int, top: int, type: str, length: int = 50, throw: int = 20, name: str = ""
+        self,
+        display: pygame.surface,
+        left: int,
+        top: int,
+        type: str,
+        length: int = 50,
+        throw: int = 20,
+        name: str = "",
+        name_pos: str = "bottom",
     ):
         """Setup the point object.
 
@@ -270,9 +303,11 @@ class CrossOver(Point):
             type (str): which direction to move the point top_bottom or bottom_top
             length (int, optional): Length of point. Defaults to 50.
             throw (int, optional): Width of throw. Defaults to 20.
+            name (str, optional): Label to draw. Defaults to "".
+            name_pos (str, optional): 'bottom' or 'top'. Where to draw the label.
         """
 
-        super().__init__(display, left, top, length, throw, name)
+        super().__init__(display, left, top, length, throw, name, name_pos)
 
         self.line1_start = [left, top]
         self.line2_start = [left, top + throw]
@@ -330,9 +365,7 @@ class CrossOver(Point):
         pygame.gfxdraw.filled_polygon(self.display, points2, self.line_colour)
         pygame.gfxdraw.aapolygon(self.display, points2, self.line_colour)
 
-        pygame.draw.rect(self.display, self.colours["boundary"], self.rect, 1)
-
-        self.display.blit(self.label_surface, (self.rect.left + self.rect.width, self.rect.top + self.rect.height))
+        super().draw()
 
 
 class Triple(Point):
