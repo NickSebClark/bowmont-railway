@@ -1,7 +1,9 @@
 """PC Control app top-level"""
 
 import pygame
+import pygame.freetype
 from pc_control.layout import Layout
+import pc_control.serial_comms as serial
 
 
 def main():
@@ -29,6 +31,8 @@ def main():
     image = pygame.image.load("resources/sign_small.png")
     roundel = pygame.image.load("resources/roundel.png")
 
+    ser = serial.connect()
+
     running = True
 
     while running:
@@ -55,12 +59,20 @@ def main():
         screen.blit(roundel, (width - 40 - 5, 5))
         pygame.draw.rect(screen, (255, 255, 255), sign_outline, 2)
 
+        serial_read(ser, layout)
+
         pygame.display.flip()
 
         pygame.time.wait(10)
 
     pygame.quit()
 
+def serial_read(ser, layout):
+    data = serial.read_data(ser)
+
+    if data:
+        for line in data:
+            print(line)
 
 if __name__ == "__main__":
     main()

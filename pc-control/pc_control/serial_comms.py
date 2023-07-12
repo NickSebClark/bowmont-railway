@@ -1,27 +1,23 @@
 import tomllib
 import serial
-from time import sleep
 
-def connect():
+def read_connection_settings():
     with open("settings.toml", "rb") as f:
         settings = tomllib.load(f)["serial"]
-    
-    print(settings['port'])
-    print(settings['baud'])
 
-    ser = serial.Serial(settings['port'], settings['baud'], timeout=0.1)
+    return settings['port'], settings['baud']
 
-    while True:
+def connect():
 
-        data = ser.readlines()
+    port, baud = read_connection_settings()
 
-        for line in data:
-            try:
-                print(line.decode('ascii'))
-            except:
-                print('decode fail')
+    return serial.Serial(port, baud, timeout=0)
 
-        sleep(0.1)
+def read_data(ser:serial.Serial):
+
+    lines = ser.readlines()
+
+    return [line.decode('ascii') for line in lines]
 
 if __name__ == "__main__":
     connect()
