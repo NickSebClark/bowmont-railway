@@ -3,24 +3,28 @@
 import pygame
 import pygame.freetype
 from pc_control.layout import Layout
-import pc_control.serial_comms as serial
-
+from pc_control.serial_comms import ZeroWaitSerial, read_connection_settings
+from datetime import datetime
 
 def main():
     """Basic pygame setup and main event loop."""
-
-    pygame.display.set_caption("Bowmont Town Layout PC Control")
+    port, _ = read_connection_settings()
+    pygame.display.set_caption(f"Bowmont Town Layout PC Control ({port})")
 
     pygame.init()
     pygame.font.init()
 
     width = 600
-    height = 400
+    height = 458
 
     # Title font
     title_font = pygame.font.Font("resources/britrdn_.ttf", 39)
     title_surface = title_font.render("Bowmont Town", True, (255, 255, 255))
     sign_outline = pygame.Rect(width / 2 - title_surface.get_width() / 2 - 10, 5, title_surface.get_width() + 20, 40)
+    
+    #Serial Monitor Text
+    monitor_font = pygame.font.SysFont("Consolas", 12)
+    serial_monitor_buffer = ['']*5
 
     # Set up the display
     screen = pygame.display.set_mode((width, height))
@@ -31,7 +35,7 @@ def main():
     image = pygame.image.load("resources/sign_small.png")
     roundel = pygame.image.load("resources/roundel.png")
 
-    ser = serial.connect()
+    ser = ZeroWaitSerial(*read_connection_settings())
 
     running = True
 
@@ -59,7 +63,10 @@ def main():
         screen.blit(roundel, (width - 40 - 5, 5))
         pygame.draw.rect(screen, (255, 255, 255), sign_outline, 2)
 
-        serial_read(ser, layout)
+
+        lines = ser.read_available_lines()
+        process_lines(lines, layout, serial_monitor_buffer)
+        draw_serial_monitor(monitor_font, serial_monitor_buffer, height, screen)
 
         pygame.display.flip()
 
@@ -67,12 +74,19 @@ def main():
 
     pygame.quit()
 
-def serial_read(ser, layout):
-    data = serial.read_data(ser)
+def draw_serial_monitor(font, buffer, top, screen):
+    for index, line in enumerate(buffer):
+        #draw to the screen
+        rendered_line = font.render(line, True, (255, 255, 255))
+        v_pos = top-12*(len(buffer)-index)
+        screen.blit(rendered_line, (5, v_pos))
 
-    if data:
-        for line in data:
-            print(line)
+
+def process_lines(new_lines, layout, monitor_buffer):
+
+    for line in new_lines:
+        monitor_buffer.append(f"{datetime.now().strftime('%H:%M:%S')}: {line}")
+        monitor_buffer.pop(0)
 
 if __name__ == "__main__":
     main()
