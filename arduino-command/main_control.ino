@@ -142,7 +142,7 @@ void serialEvent1() {
     
     // if the incoming character is a newline, we have a whole command. Do something.
     if (inChar == '\n') {
-      Serial.println("Serial-1 Recieved");
+      Serial.println("<Serial-1 Recieved>");
       for(i=0; i<cmdPos; i++){
         Serial.print(inCmd[i]);
       }
@@ -163,7 +163,7 @@ void serialEvent(){ //reads from the serial port
     
     // if the incoming character is a newline, we have a whole command. Do something.
     if (inChar == '\n') {
-      Serial.println("Serial Recieved");
+      Serial.println("<Serial Recieved>");
       for(i=0; i<cmdPos; i++){
         Serial.print(inCmd[i]);
       }

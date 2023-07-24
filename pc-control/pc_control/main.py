@@ -82,11 +82,21 @@ def draw_serial_monitor(font, buffer, top, screen):
         screen.blit(rendered_line, (5, v_pos))
 
 
-def process_lines(new_lines, layout, monitor_buffer):
+def process_lines(new_lines:list[str], layout:Layout, monitor_buffer:list[str]):
 
     for line in new_lines:
         monitor_buffer.append(f"{datetime.now().strftime('%H:%M:%S')}: {line}")
         monitor_buffer.pop(0)
+
+        match line[0]:
+            case 'S':
+                if line[1] == '0' or line[1] == '1':
+                    try:
+                        layout.update_points([int(char) for char in line[1:].strip()])
+                    except Exception as e:
+                        print(e)
+            case '<':
+                pass
 
 if __name__ == "__main__":
     main()

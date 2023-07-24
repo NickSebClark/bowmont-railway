@@ -139,6 +139,10 @@ class Layout(pygame.Surface):
 
         self.signals = [station_signal]
 
+    def update_points(self, states:list[int]):
+        for i, state in enumerate(states[0:len(self.points)]):
+            self.points[i].set_state(state)
+
     def draw(self, mouse_pos: Tuple[int, int], mouse_up: bool):
         """Iterates through the items and draws them. Calls update_state with the mouse status.
 
@@ -154,7 +158,7 @@ class Layout(pygame.Surface):
             signal.draw()
 
         for point in self.points:
-            point.update_state(mouse_pos, mouse_up)
+            point.check_mouse_click(mouse_pos, mouse_up)
             point.draw()
 
         for track in self.tracks:
