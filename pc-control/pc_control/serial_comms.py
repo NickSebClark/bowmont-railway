@@ -3,7 +3,7 @@ import serial
 
 
 def read_connection_settings():
-    with open("settings.toml", "rb") as f:
+    with open(r"pc-control\settings.toml", "rb") as f:
         settings = tomllib.load(f)["serial"]
 
     return settings['port'], settings['baud']

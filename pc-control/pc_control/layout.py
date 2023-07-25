@@ -17,98 +17,98 @@ class Layout(pygame.Surface):
         """Creates all the objects in the layout drawing."""
         super().__init__((Layout.width, Layout.height))
 
-        sw1 = StraightPoint(self, 480, 320, type="right_up", name="SW1")
-        sw1_enter, sw1_exit, sw1_diverge = sw1.get_connections()
+        sw_10 = StraightPoint(self, 480, 320, type="right_up", name="SW10")
+        sw_10_enter, sw_10_exit, sw_10_diverge = sw_10.get_connections()
 
-        sw10 = CrossOver(self, 140, 300, "top_bottom", name="SW10")
-        sw10_enter1, sw10_enter2, sw10_exit1, sw10_exit2 = sw10.get_connections()
+        sw_3 = CrossOver(self, 140, 300, "top_bottom", name="SW3")
+        sw_3_enter1, sw_3_enter2, sw_3_exit1, sw10_exit2 = sw_3.get_connections()
 
-        sw11 = StraightPoint(self, 20, 230, type="up_right", name="SW11")
-        sw11_enter, sw11_exit, sw11_diverge = sw11.get_connections()
+        sw_1 = StraightPoint(self, 20, 230, type="up_right", name="SW1")
+        sw_1_enter, sw_1_exit, sw_1_diverge = sw_1.get_connections()
 
-        sw12 = StraightPoint(self, 20, 120, type="up_right", name="SW12")
-        sw12_enter, sw12_exit, sw12_diverge = sw12.get_connections()
+        sw_0 = StraightPoint(self, 20, 120, type="up_right", name="SW0")
+        sw_0_enter, sw_0_exit, sw_0_diverge = sw_0.get_connections()
 
-        sw8 = StraightPoint(self, 230, 90, type="right_up", name="SW8", name_pos="top")
-        sw8_enter, sw8_exit, sw8_diverge = sw8.get_connections()
+        sw_4 = StraightPoint(self, 230, 90, type="right_up", name="SW4", name_pos="top")
+        sw_4_enter, sw_4_exit, sw_4_diverge = sw_4.get_connections()
 
-        sw5 = StraightPoint(self, 310, 110, type="right_up", name="SW5")
-        sw5_enter, sw5_exit, sw5_diverge = sw5.get_connections()
+        sw_7 = StraightPoint(self, 310, 110, type="right_up", name="SW7")
+        sw_7_enter, sw_7_exit, sw_7_diverge = sw_7.get_connections()
         station_signal = Signal(self, 315, 60)
 
-        sw3 = StraightPoint(self, 510, 20, type="right_down", name="SW3")
-        sw3_enter, sw3_exit, sw3_diverge = sw3.get_connections()
+        sw_9 = StraightPoint(self, 510, 20, type="right_down", name="SW9")
+        sw_9_enter, sw_9_exit, sw_9_diverge = sw_9.get_connections()
 
-        sw9 = StraightPoint(self, 140, 180, type="left_down", name="SW9")
-        sw9_enter, sw9_exit, sw9_diverge = sw9.get_connections()
+        sw_2 = StraightPoint(self, 140, 180, type="left_down", name="SW2")
+        sw_2_enter, sw_2_exit, sw_2_diverge = sw_2.get_connections()
 
         # needs to go the 'other way'
-        sw6 = CrossOver(self, 240, 160, "bottom_top", name="SW6", name_pos="top")
-        sw6_enter1, sw6_enter2, sw6_exit1, sw6_exit2 = sw6.get_connections()
+        sw_6 = CrossOver(self, 240, 160, "bottom_top", name="SW6", name_pos="top")
+        sw_6_enter1, sw_6_enter2, sw_6_exit1, sw6_exit2 = sw_6.get_connections()
 
-        sw4 = StraightPoint(self, 370, 250, type="right_up", name="SW4", name_pos="top")
-        sw4_enter, sw4_exit, sw4_diverge = sw4.get_connections()
+        sw_8 = StraightPoint(self, 370, 250, type="right_up", name="SW8", name_pos="top")
+        sw_8_enter, sw_8_exit, sw_8_diverge = sw_8.get_connections()
 
-        sw2 = StraightPoint(self, 440, 230, type="left_up", name="SW2")
-        sw2_enter, sw2_exit, sw2_diverge = sw2.get_connections()
+        sw_11 = StraightPoint(self, 440, 230, type="left_up", name="SW11")
+        sw_11_enter, sw_11_exit, sw_11_diverge = sw_11.get_connections()
 
-        sw7 = Triple(self, 280, 250, name="SW7")
-        sw7_enter, sw7_top, sw7_middle, sw7_bottom = sw7.get_connections()
+        sw_5 = Triple(self, 280, 250, name="SW5")
+        sw_5_enter, sw_5_top, sw_5_middle, sw_5_bottom = sw_5.get_connections()
 
-        self.points: list[Point] = [sw1, sw2, sw3, sw4, sw5, sw6, sw7, sw8, sw9, sw10, sw11, sw12]
+        self.points: list[Point] = [sw_0, sw_1, sw_2, sw_3, sw_4, sw_5, sw_6, sw_7, sw_8, sw_9, sw_10, sw_11]
 
-        tr1 = Track(self, sw1_exit, sw10_exit2)
-        tr2 = Track(self, sw10_enter2, sw11_enter, [(sw11_enter[0], sw10_enter2[1])])
-        tr3 = Track(self, sw11_exit, sw12_enter)
+        tr1 = Track(self, sw_10_exit, sw10_exit2)
+        tr2 = Track(self, sw_3_enter2, sw_1_enter, [(sw_1_enter[0], sw_3_enter2[1])])
+        tr3 = Track(self, sw_1_exit, sw_0_enter)
         tr4 = Track(
             self,
-            sw12_diverge,
-            (sw12_diverge[0] + 100, sw3_diverge[1]),
-            [(sw12_diverge[0], sw3_diverge[1])],
+            sw_0_diverge,
+            (sw_0_diverge[0] + 100, sw_9_diverge[1]),
+            [(sw_0_diverge[0], sw_9_diverge[1])],
             endstop="vertical",
         )
-        tr5 = Track(self, sw12_exit, sw3_exit, [(sw12_exit[0], sw3_exit[1])])
-        tr6 = Track(self, sw3_enter, sw1_enter, [(Layout.width - 20, sw3_enter[1]), (Layout.width - 20, sw1_enter[1])])
+        tr5 = Track(self, sw_0_exit, sw_9_exit, [(sw_0_exit[0], sw_9_exit[1])])
+        tr6 = Track(self, sw_9_enter, sw_10_enter, [(Layout.width - 20, sw_9_enter[1]), (Layout.width - 20, sw_10_enter[1])])
         tr7 = Track(
-            self, sw1_diverge, sw4_enter, [(sw1_diverge[0] - 5, sw1_diverge[1]), (sw4_enter[0] + 5, sw4_enter[1])]
+            self, sw_10_diverge, sw_8_enter, [(sw_10_diverge[0] - 5, sw_10_diverge[1]), (sw_8_enter[0] + 5, sw_8_enter[1])]
         )
-        tr8 = Track(self, sw4_diverge, sw9_diverge, [(sw6_exit2[0], sw9_diverge[1])])
-        tr9 = Track(self, sw9_exit, sw6_enter2)
-        tr10 = Track(self, sw11_diverge, sw6_enter1, [(sw11_diverge[0], sw6_enter1[1])])
+        tr8 = Track(self, sw_8_diverge, sw_2_diverge, [(sw6_exit2[0], sw_2_diverge[1])])
+        tr9 = Track(self, sw_2_exit, sw_6_enter2)
+        tr10 = Track(self, sw_1_diverge, sw_6_enter1, [(sw_1_diverge[0], sw_6_enter1[1])])
         tr11 = Track(
-            self, sw9_enter, sw10_enter1, [(sw9_enter[0] - 50, sw9_enter[1]), (sw9_enter[0] - 50, sw10_enter1[1])]
+            self, sw_2_enter, sw_3_enter1, [(sw_2_enter[0] - 50, sw_2_enter[1]), (sw_2_enter[0] - 50, sw_3_enter1[1])]
         )
-        tr12 = Track(self, sw10_exit1, sw2_enter, [(sw4_enter[0], sw10_exit1[1])])
+        tr12 = Track(self, sw_3_exit1, sw_11_enter, [(sw_8_enter[0], sw_3_exit1[1])])
         tr13 = Track(
-            self, sw2_diverge, sw6_exit2, [(sw2_diverge[0] + 20, sw2_diverge[1]), (sw2_diverge[0] + 20, sw6_exit2[1])]
+            self, sw_11_diverge, sw6_exit2, [(sw_11_diverge[0] + 20, sw_11_diverge[1]), (sw_11_diverge[0] + 20, sw6_exit2[1])]
         )
 
-        self.underpass_bottom = (sw5_enter[0] + 75, sw5_enter[1] + 15)
-        self.underpass_top = (self.underpass_bottom[0], sw5_enter[1] - 15)
+        self.underpass_bottom = (sw_7_enter[0] + 75, sw_7_enter[1] + 15)
+        self.underpass_top = (self.underpass_bottom[0], sw_7_enter[1] - 15)
         tr14 = Track(
             self,
-            sw6_exit1,
+            sw_6_exit1,
             self.underpass_bottom,
-            [(sw5_enter[0] + 47, sw6_exit1[1]), (self.underpass_bottom[0], self.underpass_bottom[1] + 7)],
+            [(sw_7_enter[0] + 47, sw_6_exit1[1]), (self.underpass_bottom[0], self.underpass_bottom[1] + 7)],
         )
         tr15 = Track(
             self,
-            sw3_diverge,
+            sw_9_diverge,
             self.underpass_top,
-            [(sw3_diverge[0] - 27, sw3_diverge[1]), (self.underpass_top[0], self.underpass_top[1] - 7)],
+            [(sw_9_diverge[0] - 27, sw_9_diverge[1]), (self.underpass_top[0], self.underpass_top[1] - 7)],
         )
-        tr16 = Track(self, sw4_exit, sw7_enter)
+        tr16 = Track(self, sw_8_exit, sw_5_enter)
 
-        slope = Track(self, sw2_exit, sw5_enter, [(sw2_exit[0] + 40, sw2_exit[1]), (sw2_exit[0] + 40, sw5_enter[1])])
+        slope = Track(self, sw_11_exit, sw_7_enter, [(sw_11_exit[0] + 40, sw_11_exit[1]), (sw_11_exit[0] + 40, sw_7_enter[1])])
 
-        platform_1 = Track(self, sw8_diverge, (sw8_diverge[0] - 110, sw8_diverge[1]), endstop="vertical")
-        platform_2 = Track(self, sw8_exit, (sw8_diverge[0] - 110, sw8_exit[1]), endstop="vertical")
-        platform_3 = Track(self, sw5_exit, (sw8_diverge[0] - 110, sw5_exit[1]), endstop="vertical")
-        platform_stub = Track(self, sw5_diverge, sw8_enter)
+        platform_1 = Track(self, sw_4_diverge, (sw_4_diverge[0] - 110, sw_4_diverge[1]), endstop="vertical")
+        platform_2 = Track(self, sw_4_exit, (sw_4_diverge[0] - 110, sw_4_exit[1]), endstop="vertical")
+        platform_3 = Track(self, sw_7_exit, (sw_4_diverge[0] - 110, sw_7_exit[1]), endstop="vertical")
+        platform_stub = Track(self, sw_7_diverge, sw_4_enter)
 
-        siding_1 = Track(self, sw7_top, (sw7_top[0] - 70, sw7_top[1]), endstop="vertical")
-        siding_2 = Track(self, sw7_middle, (sw7_middle[0] - 70, sw7_middle[1]), endstop="vertical")
-        siding_3 = Track(self, sw7_bottom, (sw7_bottom[0] - 70, sw7_bottom[1]), endstop="vertical")
+        siding_1 = Track(self, sw_5_top, (sw_5_top[0] - 70, sw_5_top[1]), endstop="vertical")
+        siding_2 = Track(self, sw_5_middle, (sw_5_middle[0] - 70, sw_5_middle[1]), endstop="vertical")
+        siding_3 = Track(self, sw_5_bottom, (sw_5_bottom[0] - 70, sw_5_bottom[1]), endstop="vertical")
 
         self.tracks = [
             tr1,
@@ -140,7 +140,9 @@ class Layout(pygame.Surface):
         self.signals = [station_signal]
 
     def update_points(self, states:list[int]):
-        for i, state in enumerate(states[0:len(self.points)]):
+        print(len(states))
+        print(len(self.points))
+        for i, state in enumerate(states):
             self.points[i].set_state(state)
 
     def draw(self, mouse_pos: Tuple[int, int], mouse_up: bool):

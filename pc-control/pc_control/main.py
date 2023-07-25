@@ -18,7 +18,7 @@ def main():
     height = 458
 
     # Title font
-    title_font = pygame.font.Font("resources/britrdn_.ttf", 39)
+    title_font = pygame.font.Font("pc-control/resources/britrdn_.ttf", 39)
     title_surface = title_font.render("Bowmont Town", True, (255, 255, 255))
     sign_outline = pygame.Rect(width / 2 - title_surface.get_width() / 2 - 10, 5, title_surface.get_width() + 20, 40)
     
@@ -32,8 +32,8 @@ def main():
     layout = Layout()
     layout_pos = (5, 50)
 
-    image = pygame.image.load("resources/sign_small.png")
-    roundel = pygame.image.load("resources/roundel.png")
+    image = pygame.image.load("pc-control/resources/sign_small.png")
+    roundel = pygame.image.load("pc-control/resources/roundel.png")
 
     ser = ZeroWaitSerial(*read_connection_settings())
 
@@ -92,7 +92,13 @@ def process_lines(new_lines:list[str], layout:Layout, monitor_buffer:list[str]):
             case 'S':
                 if line[1] == '0' or line[1] == '1':
                     try:
-                        layout.update_points([int(char) for char in line[1:].strip()])
+                        states = [int(char) for char in line[1:].strip()]
+                        states[7] = int(line[7:9], 2)
+                        states.pop(8)
+                        states.pop(6)
+                        states.pop(3)
+                        print(states)
+                        layout.update_points(states)
                     except Exception as e:
                         print(e)
             case '<':
