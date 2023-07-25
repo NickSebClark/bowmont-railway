@@ -6,7 +6,7 @@ import pygame.gfxdraw
 
 
 def get_colours():
-    with open("settings.toml", "rb") as f:
+    with open(r"pc-control\settings.toml", "rb") as f:
         return tomllib.load(f)["point_colours"]
 
 
@@ -61,7 +61,7 @@ class Point:
 
         self.rect = pygame.Rect(0, 0, 0, 0)
 
-    def update_state(self, mouse_pos: Tuple[int, int], mouse_up: bool):
+    def check_mouse_click(self, mouse_pos: Tuple[int, int], mouse_up: bool):
         """Called to check if the point has been clicked and update the state if necessary
 
         Args:
@@ -89,6 +89,17 @@ class Point:
             self.line_colour = self.colours["ahead"]
         elif self.state == "diverge":
             self.line_colour = self.colours["diverge"]
+
+    def set_state(self, state:int):
+        """Set the state of the point externally.
+
+        Args:
+            state (int): 0 = move_to_ahead, 1 = move_to_diverge
+        """
+        if state:
+            self.state = 'moving_to_diverge'
+        else:
+            self.state = 'moving_to_ahead'
 
     def draw(self):
         """Draw the bounding box and the label"""
@@ -249,13 +260,16 @@ class StraightPoint(Point):
 
         match self.state:
             case "moving_to_ahead":
-                self.line_end[self.end_pos_index] -= self.increment
                 if self.line_end[self.end_pos_index] == self.ahead_pos:
                     self.state = "ahead"
+                else:
+                    self.line_end[self.end_pos_index] -= self.increment
+
             case "moving_to_diverge":
-                self.line_end[self.end_pos_index] += self.increment
                 if self.line_end[self.end_pos_index] == self.diverge_pos:
                     self.state = "diverge"
+                else:
+                    self.line_end[self.end_pos_index] += self.increment
 
         # pygame.draw.line(self.display, self.line_colour, self.line_start, self.line_end, self.thickness)
 
@@ -326,26 +340,30 @@ class CrossOver(Point):
         match self.state:
             case "moving_to_ahead":
                 if self.type == "top_bottom":
-                    self.line1_end[1] -= 1
-                    self.line2_start[1] += 1
                     if self.line1_end[1] == self.top:
                         self.state = "ahead"
+                    else:
+                        self.line1_end[1] -= 1
+                        self.line2_start[1] += 1
                 else:
-                    self.line1_start[1] -= 1
-                    self.line2_end[1] += 1
                     if self.line1_start[1] == self.top:
                         self.state = "ahead"
+                    else:
+                        self.line1_start[1] -= 1
+                        self.line2_end[1] += 1
             case "moving_to_diverge":
                 if self.type == "top_bottom":
-                    self.line1_end[1] += 1
-                    self.line2_start[1] -= 1
                     if self.line1_end[1] == self.top + self.throw:
                         self.state = "diverge"
+                    else:
+                        self.line1_end[1] += 1
+                        self.line2_start[1] -= 1
                 else:
-                    self.line1_start[1] += 1
-                    self.line2_end[1] -= 1
                     if self.line1_start[1] == self.top + self.throw:
                         self.state = "diverge"
+                    else:
+                        self.line1_start[1] += 1
+                        self.line2_end[1] -= 1
 
         points1 = [
             (self.line1_start[0], self.line1_start[1] - 2),
@@ -385,7 +403,16 @@ class Triple(Point):
 
         self.state = "road_2"
 
-    def update_state(self, mouse_pos: Tuple[int, int], mouse_up: bool):
+    def set_state(self, state: int):
+        match state:
+            case 0:
+                self.state = "moving_to_road_1"
+            case 1:
+                self.state = "moving_to_road_2"
+            case 2:
+                self.state = "moving_to_road_3"
+
+    def check_mouse_click(self, mouse_pos: Tuple[int, int], mouse_up: bool):
         """Called to check if the point has been clicked and update the state if necessary
 
         Args:
@@ -424,26 +451,26 @@ class Triple(Point):
     def draw(self):
         match self.state:
             case "moving_to_road_1":
-                if self.line_end[1] > self.road_1[1]:
-                    self.line_end[1] -= 1
-                else:
-                    self.line_end[1] += 1
                 if self.line_end[1] == self.road_1[1]:
                     self.state = "road_1"
-            case "moving_to_road_2":
-                if self.line_end[1] > self.road_2[1]:
+                elif self.line_end[1] > self.road_1[1]:
                     self.line_end[1] -= 1
                 else:
                     self.line_end[1] += 1
+            case "moving_to_road_2":
                 if self.line_end[1] == self.road_2[1]:
                     self.state = "road_2"
-            case "moving_to_road_3":
-                if self.line_end[1] > self.road_3[1]:
+                elif self.line_end[1] > self.road_2[1]:
                     self.line_end[1] -= 1
                 else:
                     self.line_end[1] += 1
+            case "moving_to_road_3":
                 if self.line_end[1] == self.road_3[1]:
                     self.state = "road_3"
+                elif self.line_end[1] > self.road_3[1]:
+                    self.line_end[1] -= 1
+                else:
+                    self.line_end[1] += 1
 
         points = [
             (self.enter[0], self.enter[1] - 2),

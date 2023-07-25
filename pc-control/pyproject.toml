@@ -9,6 +9,7 @@ packages = [{include = "pc_control"}]
 [tool.poetry.dependencies]
 python = "^3.11"
 pygame = "^2.3.0"
+pyserial = "^3.5"
 
 
 [build-system]
