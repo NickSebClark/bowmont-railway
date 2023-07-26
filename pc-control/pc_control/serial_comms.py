@@ -9,17 +9,16 @@ def read_connection_settings():
     return settings['port'], settings['baud']
 
 
-class ZeroWaitSerial():
+class ZeroWaitSerial(serial.Serial):
     """A class designed to read lines with a zero timeout read."""
 
-    def __init__(self, port, baud):
-
-        self.ser = serial.Serial(port, baud, timeout=0)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs, timeout=0)
         self.buffer = ""
 
     def read_available_lines(self):
-        if (self.ser.in_waiting > 0):
-            self.buffer += self.ser.read(self.ser.in_waiting).decode('ascii') 
+        if (self.in_waiting > 0):
+            self.buffer += self.read(self.in_waiting).decode('ascii') 
 
             lines = self.buffer.split("\n")
             self.buffer = lines[-1]
@@ -28,8 +27,10 @@ class ZeroWaitSerial():
             return []
 
 if __name__ == "__main__":
+
+    port, baud = read_connection_settings()
     
-    ser = ZeroWaitSerial(*read_connection_settings())
+    ser = ZeroWaitSerial(port, baud)
 
     while True:
         lines = ser.read_available_lines()

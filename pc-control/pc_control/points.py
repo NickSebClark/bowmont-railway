@@ -3,6 +3,7 @@ import json
 from typing import Tuple
 import tomllib
 import pygame.gfxdraw
+import serial
 
 
 def get_colours():
@@ -22,10 +23,12 @@ class Point:
         display: pygame.Surface,
         left: int,
         top: int,
+        servo_index:int,
+        ser:serial.Serial,
         length: int = 50,
         throw: int = 20,
         name: str = "",
-        name_pos: str = "bottom",
+        name_pos: str = "bottom"
     ):
         """Sets up the object with key class data.
 
@@ -61,6 +64,9 @@ class Point:
 
         self.rect = pygame.Rect(0, 0, 0, 0)
 
+        self.ser = ser
+        self.servo_index = servo_index
+
     def check_mouse_click(self, mouse_pos: Tuple[int, int], mouse_up: bool):
         """Called to check if the point has been clicked and update the state if necessary
 
@@ -75,6 +81,7 @@ class Point:
 
             # have we clicked on the point?
             if mouse_up:
+                self.ser.write(str.encode(f"p{self.servo_index}\n"))
                 self.line_colour = self.colours["moving"]
                 match self.state:
                     case "ahead":
@@ -134,6 +141,8 @@ class StraightPoint(Point):
         display: pygame.surface,
         left: int,
         top: int,
+        servo_index:int,
+        ser:serial.Serial,
         type: str = "left_up",
         length: int = 50,
         throw: int = 20,
@@ -154,7 +163,7 @@ class StraightPoint(Point):
             name (str, optional): Label to draw. Defaults to "".
             name_pos (str, optional): 'bottom' or 'top'. Where to draw the label.
         """
-        super().__init__(display, left, top, length, throw, name, name_pos)
+        super().__init__(display, left, top, servo_index, ser, length, throw, name, name_pos)
 
         self.line_start = (left, top)
 
@@ -302,6 +311,8 @@ class CrossOver(Point):
         display: pygame.surface,
         left: int,
         top: int,
+        servo_index:int,
+        ser:serial.Serial,
         type: str,
         length: int = 50,
         throw: int = 20,
@@ -321,7 +332,7 @@ class CrossOver(Point):
             name_pos (str, optional): 'bottom' or 'top'. Where to draw the label.
         """
 
-        super().__init__(display, left, top, length, throw, name, name_pos)
+        super().__init__(display, left, top, servo_index, ser, length, throw, name, name_pos)
 
         self.line1_start = [left, top]
         self.line2_start = [left, top + throw]
@@ -387,8 +398,8 @@ class CrossOver(Point):
 
 
 class Triple(Point):
-    def __init__(self, display: pygame.surface, left: int, top: int, length: int = 50, throw: int = 20, name: str = ""):
-        super().__init__(display, left, top, length, throw, name)
+    def __init__(self, display: pygame.surface, left: int, top: int, servo_index:int, ser:serial.Serial, length: int = 50, throw: int = 20, name: str = ""):
+        super().__init__(display, left, top, servo_index, ser, length, throw, name)
 
         self.rect = pygame.Rect(
             left - length, top - throw - self.fixed_offset, length + 1, 2 * throw + 2 * self.fixed_offset

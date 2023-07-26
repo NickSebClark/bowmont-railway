@@ -8,7 +8,7 @@ from datetime import datetime
 
 def main():
     """Basic pygame setup and main event loop."""
-    port, _ = read_connection_settings()
+    port, baud = read_connection_settings()
     pygame.display.set_caption(f"Bowmont Town Layout PC Control ({port})")
 
     pygame.init()
@@ -28,14 +28,16 @@ def main():
 
     # Set up the display
     screen = pygame.display.set_mode((width, height))
+    
+    ser = ZeroWaitSerial(port, baud)
 
-    layout = Layout()
+    layout = Layout(ser)
     layout_pos = (5, 50)
 
     image = pygame.image.load("pc-control/resources/sign_small.png")
     roundel = pygame.image.load("pc-control/resources/roundel.png")
 
-    ser = ZeroWaitSerial(*read_connection_settings())
+    
 
     running = True
 
@@ -93,11 +95,11 @@ def process_lines(new_lines:list[str], layout:Layout, monitor_buffer:list[str]):
                 if line[1] == '0' or line[1] == '1':
                     try:
                         states = [int(char) for char in line[1:].strip()]
-                        states[7] = int(line[7:9], 2)
+                        states[7] = int(line[7:9], 2) #convert the sidings into a single number
+                        #remove the doubles
                         states.pop(8)
                         states.pop(6)
                         states.pop(3)
-                        print(states)
                         layout.update_points(states)
                     except Exception as e:
                         print(e)
