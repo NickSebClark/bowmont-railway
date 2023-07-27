@@ -79,6 +79,21 @@ files = [
 ]
 
 [[package]]
+name = "pygame-widgets"
+version = "1.1.1"
+description = "Widgets for use with Pygame"
+category = "main"
+optional = false
+python-versions = ">=3.10"
+files = [
+    {file = "pygame-widgets-1.1.1.tar.gz", hash = "sha256:173aaa33c98de2bc2be5d0c80bfff34b0e0e69e55aec25cf165f593d9c1a5f62"},
+    {file = "pygame_widgets-1.1.1-py3-none-any.whl", hash = "sha256:b6f65553cda673e1ce540ee2fd005f2492d826d9b7d94b240ed60c1ee3b31b50"},
+]
+
+[package.dependencies]
+pygame = ">=2.0.0"
+
+[[package]]
 name = "pyserial"
 version = "3.5"
 description = "Python Serial Port Extension"
@@ -96,4 +111,4 @@ cp2110 = ["hidapi"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "05fb35279ad196b4638b9278aa1c378d71398f665e1a401986485f2c66565dff"
+content-hash = "cc1d6d1cdcf57213a804ffe81d2a88e3e6b057321fcca255717582bd34de7188"
