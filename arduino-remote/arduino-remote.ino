@@ -66,8 +66,6 @@ void setup()
 
   circleLights();
 
-  flashLights(250);
-
   // set all the button states to false
   memset(lastButtonState, 0, sizeof(lastButtonState));
 
@@ -268,9 +266,6 @@ void readButtons()
         }
         else if (reading)
         { // this is trigged when the LIGHTS button is pressed.
-          flashLights(200);
-          flashLights(200);
-          flashLights(200);
           circleLights();
           requestSync();
         }
