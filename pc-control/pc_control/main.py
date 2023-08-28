@@ -7,6 +7,7 @@ from pc_control.serial_comms import ZeroWaitSerial, read_connection_settings
 from datetime import datetime
 from pygame_widgets.button import Button
 import pygame_widgets
+from serial import SerialException
 
 
 def main():
@@ -32,7 +33,11 @@ def main():
     # Set up the display
     screen = pygame.display.set_mode((width, height))
 
-    ser = ZeroWaitSerial(port, baud)
+    try:
+        ser = ZeroWaitSerial(port, baud)
+    except SerialException as e:
+        ser = None
+        print("Unable to start Serial" + str(e))
 
     layout = Layout(ser)
     layout_pos = (5, 50)
@@ -86,7 +91,11 @@ def main():
         screen.blit(roundel, (width - 40 - 5, 5))
         pygame.draw.rect(screen, (255, 255, 255), sign_outline, 2)
 
-        lines = ser.read_available_lines()
+        if ser:
+            lines = ser.read_available_lines()
+        else:
+            lines = []
+            
         process_lines(lines, layout, serial_monitor_buffer)
         draw_serial_monitor(monitor_font, serial_monitor_buffer, height, screen)
 

@@ -54,6 +54,14 @@ class Track:
             pygame.gfxdraw.filled_polygon(self.display, points, self.line_colour)
             pygame.gfxdraw.aapolygon(self.display, points, self.line_colour)
 
+            #if there is more than one section, draw a circle at the start of subsequent sections to round the corners.
+            if i>0:
+                pygame.gfxdraw.filled_circle(self.display, line_start[0], line_start[1], 2, self.line_colour)
+                pygame.gfxdraw.aacircle(self.display, line_start[0], line_start[1], 2, self.line_colour)
+
+
+        
+
         end_point = self.vertices[-1]
 
         if self.endstop == "vertical":
