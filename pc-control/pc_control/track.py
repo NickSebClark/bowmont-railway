@@ -40,9 +40,9 @@ class Track:
             if line_start[0] != line_end[0] and line_start[1] != line_end[1]: #diagonal line
                 points = [
                     (line_start[0] - 3, line_start[1]),
-                    (line_start[0] + 2, line_start[1]),
+                    (line_start[0] + 3, line_start[1]),
                     (line_end[0] + 3, line_end[1]),
-                    (line_end[0] - 2, line_end[1]),
+                    (line_end[0] - 3, line_end[1]),
                 ]
             elif line_start[0] != line_end[0]: # horizontal line
                 points = [

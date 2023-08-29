@@ -14,7 +14,7 @@ class Layout(pygame.Surface):
     width = 590
     height = 345
 
-    def __init__(self, ser:serial.Serial):
+    def __init__(self, ser: serial.Serial):
         """Creates all the objects in the layout drawing."""
         super().__init__((Layout.width, Layout.height))
 
@@ -32,7 +32,7 @@ class Layout(pygame.Surface):
 
         sw_4 = StraightPoint(self, 230, 90, 5, ser, type="right_up", name="SW4", name_pos="top")
         sw_4_enter, sw_4_exit, sw_4_diverge = sw_4.get_connections()
-        
+
         sw_5 = Triple(self, 280, 250, 6, ser, name="SW5")
         sw_5_enter, sw_5_top, sw_5_middle, sw_5_bottom = sw_5.get_connections()
 
@@ -68,19 +68,34 @@ class Layout(pygame.Surface):
             endstop="vertical",
         )
         tr5 = Track(self, sw_0_exit, sw_9_exit, [(sw_0_exit[0], sw_9_exit[1])])
-        tr6 = Track(self, sw_9_enter, sw_10_enter, [(Layout.width - 20, sw_9_enter[1]), (Layout.width - 20, sw_10_enter[1])])
-        tr7 = Track(
-            self, sw_10_diverge, sw_8_enter, [(sw_10_diverge[0] - 5, sw_10_diverge[1]), (sw_8_enter[0] + 5, sw_8_enter[1])]
+        tr6 = Track(
+            self, sw_9_enter, sw_10_enter, [(Layout.width - 20, sw_9_enter[1]), (Layout.width - 20, sw_10_enter[1])]
         )
-        tr8 = Track(self, sw_8_diverge, sw_2_diverge, [(sw6_exit2[0], sw_2_diverge[1])])
+        tr7 = Track(
+            self,
+            sw_10_diverge,
+            sw_8_enter,
+            [(sw_10_diverge[0] - 5, sw_10_diverge[1]), (sw_8_enter[0] + 5, sw_8_enter[1])],
+        )
+        tr8 = Track(
+            self,
+            sw_8_diverge,
+            sw_2_diverge,
+            [(sw_8_diverge[0] - 5, sw_8_diverge[1]), (sw6_exit2[0] - 5, sw_2_diverge[1])],
+        )
         tr9 = Track(self, sw_2_exit, sw_6_enter2)
         tr10 = Track(self, sw_1_diverge, sw_6_enter1, [(sw_1_diverge[0], sw_6_enter1[1])])
         tr11 = Track(
             self, sw_2_enter, sw_3_enter1, [(sw_2_enter[0] - 50, sw_2_enter[1]), (sw_2_enter[0] - 50, sw_3_enter1[1])]
         )
-        tr12 = Track(self, sw_3_exit1, sw_11_enter, [(sw_8_enter[0], sw_3_exit1[1])])
+        tr12 = Track(
+            self, sw_3_exit1, sw_11_enter, [(sw_8_enter[0] - 5, sw_3_exit1[1]), (sw_11_enter[0] - 5, sw_11_enter[1])]
+        )
         tr13 = Track(
-            self, sw_11_diverge, sw6_exit2, [(sw_11_diverge[0] + 20, sw_11_diverge[1]), (sw_11_diverge[0] + 20, sw6_exit2[1])]
+            self,
+            sw_11_diverge,
+            sw6_exit2,
+            [(sw_11_diverge[0] + 20, sw_11_diverge[1]), (sw_11_diverge[0] + 20, sw6_exit2[1])],
         )
 
         self.underpass_bottom = (sw_7_enter[0] + 75, sw_7_enter[1] + 15)
@@ -91,15 +106,30 @@ class Layout(pygame.Surface):
             self.underpass_bottom,
             [(sw_7_enter[0] + 47, sw_6_exit1[1]), (self.underpass_bottom[0], self.underpass_bottom[1] + 7)],
         )
+        # little bit to make it line up neatly
+        tr14_b = Track(
+            self,
+            (self.underpass_bottom[0] + 1, self.underpass_bottom[1] + 7),
+            (self.underpass_bottom[0] + 1, self.underpass_bottom[1]),
+        )
         tr15 = Track(
             self,
             sw_9_diverge,
             self.underpass_top,
             [(sw_9_diverge[0] - 27, sw_9_diverge[1]), (self.underpass_top[0], self.underpass_top[1] - 7)],
         )
+        # little bit to make it line up neatly
+        tr15_b = Track(
+            self,
+            (self.underpass_top[0] - 1, self.underpass_top[1] - 7),
+            (self.underpass_top[0] - 1, self.underpass_top[1]),
+        )
+
         tr16 = Track(self, sw_8_exit, sw_5_enter)
 
-        slope = Track(self, sw_11_exit, sw_7_enter, [(sw_11_exit[0] + 40, sw_11_exit[1]), (sw_11_exit[0] + 40, sw_7_enter[1])])
+        slope = Track(
+            self, sw_11_exit, sw_7_enter, [(sw_11_exit[0] + 40, sw_11_exit[1]), (sw_11_exit[0] + 40, sw_7_enter[1])]
+        )
 
         platform_1 = Track(self, sw_4_diverge, (sw_4_diverge[0] - 110, sw_4_diverge[1]), endstop="vertical")
         platform_2 = Track(self, sw_4_exit, (sw_4_diverge[0] - 110, sw_4_exit[1]), endstop="vertical")
@@ -125,7 +155,9 @@ class Layout(pygame.Surface):
             tr12,
             tr13,
             tr14,
+            tr14_b,
             tr15,
+            tr15_b,
             tr16,
             slope,
             platform_1,
@@ -139,7 +171,7 @@ class Layout(pygame.Surface):
 
         self.signals = [station_signal]
 
-    def update_points(self, states:list[int]):
+    def update_points(self, states: list[int]):
         for i, state in enumerate(states):
             self.points[i].set_state(state)
 
