@@ -1,5 +1,7 @@
 # Bowmont Railway PC Control
 
+[![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 Uses pygame for animation. Communicates with Arduino using PySerial
 
 Top-level: [main.py](pc_control/main.py).

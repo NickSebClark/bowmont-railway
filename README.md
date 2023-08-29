@@ -1,4 +1,5 @@
-# Bowmont Town Model Railway
+![banner](banner.png)
+
 Source code and designs for my model railway.
 
 ## arduino-command
