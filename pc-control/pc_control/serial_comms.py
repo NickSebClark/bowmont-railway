@@ -26,6 +26,18 @@ class ZeroWaitSerial(serial.Serial):
         else:
             return []
 
+class DummySerial():
+    """Can be used when serial is not available"""
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def write(self, string):
+        print(f"Write: {string}")
+        
+    def read_available_lines(self):
+        return []
+
 if __name__ == "__main__":
 
     port, baud = read_connection_settings()

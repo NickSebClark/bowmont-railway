@@ -3,7 +3,7 @@
 import pygame
 import pygame.freetype
 from pc_control.layout import Layout
-from pc_control.serial_comms import ZeroWaitSerial, read_connection_settings
+from pc_control.serial_comms import ZeroWaitSerial, read_connection_settings, DummySerial
 from datetime import datetime
 from pygame_widgets.button import Button
 import pygame_widgets
@@ -33,10 +33,14 @@ def main():
     # Set up the display
     screen = pygame.display.set_mode((width, height))
 
+    #Connect the serial
     try:
         ser = ZeroWaitSerial(port, baud)
+        connected = True
     except SerialException as e:
-        ser = None
+        connected = False
+        connnection_message = title_font.render("NOT CONNECTED", True, (255,0,0))
+        ser = DummySerial()
         print("Unable to start Serial" + str(e))
 
     layout = Layout(ser)
@@ -51,7 +55,7 @@ def main():
         height - 35,
         50,
         30,
-        fontSize=15,
+        fontSize=25,
         text="SYNC",
         inactiveColour=(200, 50, 0),
         hoverColour=(150, 0, 0),
@@ -91,10 +95,10 @@ def main():
         screen.blit(roundel, (width - 40 - 5, 5))
         pygame.draw.rect(screen, (255, 255, 255), sign_outline, 2)
 
-        if ser:
-            lines = ser.read_available_lines()
-        else:
-            lines = []
+        if not connected:
+            screen.blit(connnection_message, (width/2-connnection_message.get_width()/2, height-50))
+
+        lines = ser.read_available_lines()
             
         process_lines(lines, layout, serial_monitor_buffer)
         draw_serial_monitor(monitor_font, serial_monitor_buffer, height, screen)
