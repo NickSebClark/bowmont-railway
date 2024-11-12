@@ -11,6 +11,27 @@ def get_colours():
         return tomllib.load(f)["point_colours"]
 
 
+def draw_red_cross(surface, center, size):
+    color = (255, 0, 0)  # Red color
+    x, y = center
+    half_size = size // 2
+
+    pygame.draw.line(
+        surface,
+        color,
+        (x - half_size, y - half_size),
+        (x + half_size, y + half_size),
+        2,
+    )
+    pygame.draw.line(
+        surface,
+        color,
+        (x - half_size, y + half_size),
+        (x + half_size, y - half_size),
+        2,
+    )
+
+
 class Point:
     """Parent Point class intended to be overridden.
     Maintains a point state: ahead, diverge, moving_to_ahead, moving_to_diverge.
@@ -23,12 +44,12 @@ class Point:
         display: pygame.Surface,
         left: int,
         top: int,
-        servo_index:int,
-        ser:serial.Serial,
+        servo_index: int,
+        ser: serial.Serial,
         length: int = 50,
         throw: int = 20,
         name: str = "",
-        name_pos: str = "bottom"
+        name_pos: str = "bottom",
     ):
         """Sets up the object with key class data.
 
@@ -67,6 +88,14 @@ class Point:
         self.ser = ser
         self.servo_index = servo_index
 
+        self.mark_unoccupied = False
+
+    def __eq__(self, other):
+        """Override the equality operator to compare Track objects by their id."""
+        if isinstance(other, Point):
+            return self.name == other.name
+        return False
+
     def check_mouse_click(self, mouse_pos: Tuple[int, int], mouse_up: bool):
         """Called to check if the point has been clicked and update the state if necessary
 
@@ -97,16 +126,16 @@ class Point:
         elif self.state == "diverge":
             self.line_colour = self.colours["diverge"]
 
-    def set_state(self, state:int):
+    def set_state(self, state: int):
         """Set the state of the point externally.
 
         Args:
             state (int): 0 = move_to_ahead, 1 = move_to_diverge
         """
         if state:
-            self.state = 'moving_to_diverge'
+            self.state = "moving_to_diverge"
         else:
-            self.state = 'moving_to_ahead'
+            self.state = "moving_to_ahead"
 
     def draw(self):
         """Draw the bounding box and the label"""
@@ -114,10 +143,17 @@ class Point:
 
         if self.name_pos == "bottom":
             self.display.blit(
-                self.label_surface, (self.rect.left + self.rect.width, self.rect.top + self.rect.height - 2)
+                self.label_surface,
+                (
+                    self.rect.left + self.rect.width,
+                    self.rect.top + self.rect.height - 2,
+                ),
             )
         else:
-            self.display.blit(self.label_surface, (self.rect.left + self.rect.width, self.rect.top - 12))
+            self.display.blit(
+                self.label_surface,
+                (self.rect.left + self.rect.width, self.rect.top - 12),
+            )
 
 
 class StraightPoint(Point):
@@ -141,8 +177,8 @@ class StraightPoint(Point):
         display: pygame.surface,
         left: int,
         top: int,
-        servo_index:int,
-        ser:serial.Serial,
+        servo_index: int,
+        ser: serial.Serial,
         type: str = "left_up",
         length: int = 50,
         throw: int = 20,
@@ -181,6 +217,7 @@ class StraightPoint(Point):
                 self.ahead_pos = top
                 self.diverge_pos = top - self.throw
                 self.diverge_coord = [self.line_end[0], self.diverge_pos]
+                self.ahead_coord = [self.line_end[0], self.ahead_pos]
             case "left_down":
                 self.increment = 1
                 self.box_top = top - self.fixed_offset
@@ -192,6 +229,7 @@ class StraightPoint(Point):
                 self.ahead_pos = top
                 self.diverge_pos = top + self.throw
                 self.diverge_coord = [self.line_end[0], self.diverge_pos]
+                self.ahead_coord = [self.line_end[0], self.ahead_pos]
             case "right_up":
                 self.increment = -1
                 self.box_top = top - self.fixed_offset - throw
@@ -203,6 +241,7 @@ class StraightPoint(Point):
                 self.ahead_pos = top
                 self.diverge_pos = top - self.throw
                 self.diverge_coord = [self.line_end[0], self.diverge_pos]
+                self.ahead_coord = [self.line_end[0], self.ahead_pos]
             case "right_down":
                 self.increment = 1
                 self.box_top = top - self.fixed_offset
@@ -214,6 +253,7 @@ class StraightPoint(Point):
                 self.ahead_pos = top
                 self.diverge_pos = top + self.throw
                 self.diverge_coord = [self.line_end[0], self.diverge_pos]
+                self.ahead_coord = [self.line_end[0], self.ahead_pos]
             case "up_right":
                 self.increment = 1
                 self.box_top = top - self.length
@@ -225,6 +265,7 @@ class StraightPoint(Point):
                 self.ahead_pos = left
                 self.diverge_pos = left + self.throw
                 self.diverge_coord = [self.diverge_pos, self.line_end[1]]
+                self.ahead_coord = [self.ahead_pos, self.line_end[1]]
             case "up_left":
                 self.increment = -1
                 self.box_top = top - self.length
@@ -236,6 +277,7 @@ class StraightPoint(Point):
                 self.ahead_pos = left
                 self.diverge_pos = left - self.throw
                 self.diverge_coord = [self.diverge_pos, self.line_end[1]]
+                self.ahead_coord = [self.ahead_pos, self.line_end[1]]
             case "down_right":
                 self.increment = 1
                 self.box_top = top
@@ -247,6 +289,7 @@ class StraightPoint(Point):
                 self.ahead_pos = left
                 self.diverge_pos = left + self.throw
                 self.diverge_coord = [self.diverge_pos, self.line_end[1]]
+                self.ahead_coord = [self.ahead_pos, self.line_end[1]]
             case "down_left":
                 self.increment = -1
                 self.box_top = top
@@ -258,11 +301,30 @@ class StraightPoint(Point):
                 self.ahead_pos = left
                 self.diverge_pos = left - self.throw
                 self.diverge_coord = [self.diverge_pos, self.line_end[1]]
+                self.ahead_coord = [self.ahead_pos, self.line_end[1]]
 
         self.rect = pygame.Rect(self.box_left, self.box_top, self.box_width, self.box_height)
 
-    def get_connections(self) -> Tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int]]:
+    def get_connections(
+        self,
+    ) -> Tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int]]:
         return self.line_start, self.line_end.copy(), self.diverge_coord
+
+    def set_tracks(self, enter, exit, diverge):
+        self.enter = enter
+        self.exit = exit
+        self.diverge = diverge
+
+    def get_connected_tracks(self):
+        match self.state:
+            case "ahead":
+                return self.enter, self.exit
+            case "diverge":
+                return self.enter, self.diverge
+            case "moving_to_ahead":
+                return self.enter, self.diverge
+            case "moving_to_diverge":
+                return self.enter, self.exit
 
     def draw(self):
         """Draw the point. Increment the position if moving."""
@@ -300,6 +362,12 @@ class StraightPoint(Point):
         pygame.gfxdraw.filled_polygon(self.display, points, self.line_colour)
         pygame.gfxdraw.aapolygon(self.display, points, self.line_colour)
 
+        if self.mark_unoccupied:
+            if self.state == "ahead":
+                draw_red_cross(self.display, self.diverge_coord, 10)
+            elif self.state == "diverge":
+                draw_red_cross(self.display, self.ahead_coord, 10)
+
         super().draw()
 
 
@@ -311,8 +379,8 @@ class CrossOver(Point):
         display: pygame.surface,
         left: int,
         top: int,
-        servo_index:int,
-        ser:serial.Serial,
+        servo_index: int,
+        ser: serial.Serial,
         type: str,
         length: int = 50,
         throw: int = 20,
@@ -339,12 +407,64 @@ class CrossOver(Point):
         self.line1_end = [left + length, top]
         self.line2_end = [left + length, top + throw]
 
+        self.top_enter_pos = self.line1_start.copy()
+        self.top_exit_pos = self.line1_end.copy()
+        self.bottom_enter_pos = self.line2_start.copy()
+        self.bottom_exit_pos = self.line2_end.copy()
+
         self.type = type
 
         self.rect = pygame.Rect(left, top - self.fixed_offset, length + 1, throw + 2 * self.fixed_offset)
 
+        self.conflict = None
+
+    def mark_conflict(self, track):
+        match track:
+            case self.top_enter:
+                self.conflict = self.top_enter_pos
+            case self.top_exit:
+                self.conflict = self.top_exit_pos
+            case self.bottom_enter:
+                self.conflict = self.bottom_enter_pos
+            case self.bottom_exit:
+                self.conflict = self.bottom_exit_pos
+
     def get_connections(self):
-        return self.line1_start.copy(), self.line2_start.copy(), self.line1_end.copy(), self.line2_end.copy()
+        return (
+            self.line1_start.copy(),
+            self.line2_start.copy(),
+            self.line1_end.copy(),
+            self.line2_end.copy(),
+        )
+
+    def set_tracks(self, top_enter, top_exit, bottom_enter, bottom_exit):
+        self.top_enter = top_enter
+        self.top_exit = top_exit
+        self.bottom_enter = bottom_enter
+        self.bottom_exit = bottom_exit
+
+    def get_connected_tracks(self):
+        match self.state:
+            case "ahead":
+                return [
+                    (self.top_enter, self.top_exit),
+                    (self.bottom_enter, self.bottom_exit),
+                ]
+            case "diverge":
+                if self.type == "top_bottom":
+                    return self.top_enter, self.bottom_exit
+                else:
+                    return self.bottom_enter, self.top_exit
+            case "moving_to_ahead":
+                if self.type == "top_bottom":
+                    return self.top_enter, self.bottom_exit
+                else:
+                    return self.bottom_enter, self.top_exit
+            case "moving_to_diverge":
+                return [
+                    (self.top_enter, self.top_exit),
+                    (self.bottom_enter, self.bottom_exit),
+                ]
 
     def draw(self):
         """Draw the point. Increment the position if moving."""
@@ -394,15 +514,31 @@ class CrossOver(Point):
         pygame.gfxdraw.filled_polygon(self.display, points2, self.line_colour)
         pygame.gfxdraw.aapolygon(self.display, points2, self.line_colour)
 
+        if self.conflict:
+            draw_red_cross(self.display, self.conflict, 10)
+
         super().draw()
 
 
 class Triple(Point):
-    def __init__(self, display: pygame.surface, left: int, top: int, servo_index:int, ser:serial.Serial, length: int = 50, throw: int = 20, name: str = ""):
+    def __init__(
+        self,
+        display: pygame.surface,
+        left: int,
+        top: int,
+        servo_index: int,
+        ser: serial.Serial,
+        length: int = 50,
+        throw: int = 20,
+        name: str = "",
+    ):
         super().__init__(display, left, top, servo_index, ser, length, throw, name)
 
         self.rect = pygame.Rect(
-            left - length, top - throw - self.fixed_offset, length + 1, 2 * throw + 2 * self.fixed_offset
+            left - length,
+            top - throw - self.fixed_offset,
+            length + 1,
+            2 * throw + 2 * self.fixed_offset,
         )
 
         self.enter = (left, top)
@@ -413,6 +549,27 @@ class Triple(Point):
         self.line_end = [self.road_2[0], self.road_2[1]]
 
         self.state = "road_2"
+
+    def set_tracks(self, enter, road_1, road_2, road_3):
+        self.enter_track = enter
+        self.road_1 = road_1
+        self.road_2 = road_2
+        self.road_3 = road_3
+
+    def get_connected_tracks(self):
+        match self.state:
+            case "road_1":
+                return self.enter, self.road_1
+            case "road_2":
+                return self.enter, self.road_2
+            case "road_3":
+                return self.enter, self.road_3
+            case "moving_to_road_1":
+                return self.enter, self.road_1
+            case "moving_to_road_2":
+                return self.enter, self.road_2
+            case "moving_to_road_3":
+                return self.enter, self.road_3
 
     def set_state(self, state: int):
         match state:
@@ -494,4 +651,7 @@ class Triple(Point):
         pygame.gfxdraw.aapolygon(self.display, points, self.line_colour)
         pygame.draw.rect(self.display, self.colours["boundary"], self.rect, 1)
 
-        self.display.blit(self.label_surface, (self.rect.left + self.rect.width, self.rect.top + self.rect.height))
+        self.display.blit(
+            self.label_surface,
+            (self.rect.left + self.rect.width, self.rect.top + self.rect.height),
+        )
