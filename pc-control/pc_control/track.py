@@ -1,15 +1,18 @@
 import pygame
 from typing import Tuple
 import pygame.gfxdraw
+import tomllib
+
+
+def get_colours():
+    with open(r"pc-control\settings.toml", "rb") as f:
+        return tomllib.load(f)["track_colours"]
 
 
 class Track:
     """Draw track. Uses aapolygons. Fixed width of 4 pixels."""
 
     id_counter = 1
-    route_colour = (0, 255, 0)
-    base_colour = (255, 255, 255)
-    highlight_colour = (255, 0, 0)
 
     def __init__(
         self,
@@ -39,6 +42,11 @@ class Track:
         self.label = font.render(str(self.id), True, (255, 255, 255))  # Render the ID as text
         self.in_route = False
         self.connections = []
+
+        colours = get_colours()
+        self.route_colour = colours["route_colour"]
+        self.base_colour = colours["base_colour"]
+        self.highlight_colour = colours["highlight_colour"]
 
     def __eq__(self, other):
         """Override the equality operator to compare Track objects by their id."""
@@ -96,9 +104,9 @@ class Track:
             rect = pygame.Rect(min_x, min_y, width, height)
 
             if self.in_route:
-                colour = Track.route_colour
+                colour = self.route_colour
             else:
-                colour = Track.base_colour
+                colour = self.base_colour
 
             if rect.collidepoint(mouse_pos):
                 self.hover = True
@@ -130,6 +138,6 @@ class Track:
                 4,
             )
 
-        self.display.blit(
-            self.label, (self.vertices[0][0] + 10, self.vertices[0][1] - 10)
-        )  # Blit the text surface onto the display
+        # self.display.blit(
+        #     self.label, (self.vertices[0][0] + 10, self.vertices[0][1] - 10)
+        # )  # Blit the text surface onto the display

@@ -1,5 +1,4 @@
 import pygame
-import json
 from typing import Tuple
 import tomllib
 import pygame.gfxdraw
@@ -550,26 +549,37 @@ class Triple(Point):
 
         self.state = "road_2"
 
+        self.conflict = None
+
     def set_tracks(self, enter, road_1, road_2, road_3):
         self.enter_track = enter
-        self.road_1 = road_1
-        self.road_2 = road_2
-        self.road_3 = road_3
+        self.road_1_track = road_1
+        self.road_2_track = road_2
+        self.road_3_track = road_3
+
+    def mark_conflict(self, track):
+        match track:
+            case self.road_1_track:
+                self.conflict = self.road_1
+            case self.road_2_track:
+                self.conflict = self.road_2
+            case self.road_3_track:
+                self.conflict = self.road_3
 
     def get_connected_tracks(self):
         match self.state:
             case "road_1":
-                return self.enter, self.road_1
+                return self.enter_track, self.road_1_track
             case "road_2":
-                return self.enter, self.road_2
+                return self.enter_track, self.road_2_track
             case "road_3":
-                return self.enter, self.road_3
+                return self.enter_track, self.road_3_track
             case "moving_to_road_1":
-                return self.enter, self.road_1
+                return self.enter_track, self.road_1_track
             case "moving_to_road_2":
-                return self.enter, self.road_2
+                return self.enter_track, self.road_2_track
             case "moving_to_road_3":
-                return self.enter, self.road_3
+                return self.enter_track, self.road_3_track
 
     def set_state(self, state: int):
         match state:
@@ -650,6 +660,9 @@ class Triple(Point):
         pygame.gfxdraw.filled_polygon(self.display, points, self.line_colour)
         pygame.gfxdraw.aapolygon(self.display, points, self.line_colour)
         pygame.draw.rect(self.display, self.colours["boundary"], self.rect, 1)
+
+        if self.conflict:
+            draw_red_cross(self.display, self.conflict, 10)
 
         self.display.blit(
             self.label_surface,

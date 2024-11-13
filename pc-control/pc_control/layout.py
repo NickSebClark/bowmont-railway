@@ -256,6 +256,8 @@ class Layout(pygame.Surface):
 
         self.crossovers = [sw_3, sw_6]
 
+        self.triple = sw_5
+
         self.signals = [station_signal]
 
     def update_points(self, states: list[int]):
@@ -318,66 +320,91 @@ class Layout(pygame.Surface):
             ],
         )
 
+        self.highlight_route()
+
+    def highlight_route(self):
+        """Check if any tracks are being hovered over then start a route traversal from that track."""
+
+        # Clear the route status for all the tracks. If hovering, this is the route start.
         route_start = None
         for track in self.tracks:
             track.in_route = False
             if track.hover:
                 route_start = track
 
+        # Switches have flags to mark red crosses when routes enter switches set against them. Clear these flags.
         for switch in self.points:
             switch.mark_unoccupied = False
 
         for crossover in self.crossovers:
             crossover.conflict = None
 
+        self.triple.conflict = None
+
         if route_start:
-            # list of tuples containing the connection as a tuple
-            connections = [(connection, route_start) for connection in route_start.connections]
-            route_start.in_route = True
-            route = [route_start]
+            traverse_route(route_start)
 
-            # while there are still connections to check
-            while connections:
-                # get the last connection - we add connections to the end
-                next_connection = connections.pop(0)
 
-                if isinstance(next_connection[0], Track):
-                    # add it to the route
-                    if not next_connection[0].in_route:
-                        next_connection[0].in_route = True
-                        # add the next connections to the list of connections to check
-                        connections += [
-                            (connection, next_connection[0]) for connection in next_connection[0].connections
-                        ]
-                        route += [next_connection]
-                elif isinstance(next_connection[0], StraightPoint):
+def traverse_route(route_start: Track):
+    """Traverse the route from the route start. Set the flag in the contained tracks to indicate they are in the route."""
 
-                    switch_connections = next_connection[0].get_connected_tracks()
+    # Find the connections for the route start. Build a list of 2 element tuples. Each tuple describes a connection.
+    connections_to_process = [(connection, route_start) for connection in route_start.connections]
+    route_start.in_route = True
+    route = [route_start]
 
-                    if switch_connections[0] == next_connection[1]:
-                        connections.append([switch_connections[1], next_connection[0]])
-                    elif switch_connections[1] == next_connection[1]:
-                        connections.append([switch_connections[0], next_connection[0]])
-                    else:
-                        next_connection[0].mark_unoccupied = True  # switch not set for route
+    # while there are still connections in the route
+    while connections_to_process:
+        # get the last connection - we add connections to the end
+        connection = connections_to_process.pop(0)
 
-                    route += [next_connection]
+        if isinstance(connection[0], Track):
+            # add it to the route
+            if not connection[0].in_route:
+                connection[0].in_route = True
+                # get the connections to this track and add them to the connections to process
+                connections_to_process += [
+                    (track_connection, connection[0]) for track_connection in connection[0].connections
+                ]
+                route += [connection]
+        elif isinstance(connection[0], StraightPoint):
 
-                elif isinstance(next_connection[0], CrossOver):
-                    switch_connections = next_connection[0].get_connected_tracks()
+            switch_connections = connection[0].get_connected_tracks()
 
-                    # Do we have two pairs to handle?
-                    if next_connection[0].state == "ahead" or next_connection[0].state == "moving_to_diverge":
-                        for connection_pair in switch_connections:
-                            if connection_pair[0] == next_connection[1]:
-                                connections.append([connection_pair[1], next_connection[0]])
-                            elif connection_pair[1] == next_connection[1]:
-                                connections.append([connection_pair[0], next_connection[0]])
-                    else:  # switch is in the crossover position so only one pair of connections.
-                        if switch_connections[0] == next_connection[1]:
-                            connections.append([switch_connections[1], next_connection[0]])
-                        elif switch_connections[1] == next_connection[1]:
-                            connections.append([switch_connections[0], next_connection[0]])
-                        else:
-                            # set the cross at the incomming route position.
-                            next_connection[0].mark_conflict(next_connection[1])
+            # We check if the switch reports that it is set to the track connected to it. If so add the track the other side of the switch to process.
+            if switch_connections[0] == connection[1]:
+                connections_to_process.append([switch_connections[1], connection[0]])
+            elif switch_connections[1] == connection[1]:
+                connections_to_process.append([switch_connections[0], connection[0]])
+            else:
+                connection[0].mark_unoccupied = True  # switch not set for route so set the flag to mark the red cross
+
+        elif isinstance(connection[0], CrossOver):
+            switch_connections = connection[0].get_connected_tracks()
+
+            # Is the crossover set or do we have two pairs of connections to handle?
+            if connection[0].state == "ahead" or connection[0].state == "moving_to_diverge":
+                for connection_pair in switch_connections:
+                    if connection_pair[0] == connection[1]:
+                        connections_to_process.append([connection_pair[1], connection[0]])
+                    elif connection_pair[1] == connection[1]:
+                        connections_to_process.append([connection_pair[0], connection[0]])
+            else:  # switch is in the crossover position so only one pair of connections.
+                if switch_connections[0] == connection[1]:
+                    connections_to_process.append([switch_connections[1], connection[0]])
+                elif switch_connections[1] == connection[1]:
+                    connections_to_process.append([switch_connections[0], connection[0]])
+                else:
+                    # set the cross at track which is not connected through the switch
+                    connection[0].mark_conflict(connection[1])
+
+        elif isinstance(connection[0], Triple):
+
+            switch_connections = connection[0].get_connected_tracks()
+
+            if switch_connections[0] == connection[1]:
+                connections_to_process.append([switch_connections[1], connection[0]])
+            elif switch_connections[1] == connection[1]:
+                connections_to_process.append([switch_connections[0], connection[0]])
+            else:
+                connection[0].mark_conflict(connection[1])
