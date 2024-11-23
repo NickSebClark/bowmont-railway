@@ -1,0 +1,2 @@
+[console_scripts]
+main = pc_control.main:main

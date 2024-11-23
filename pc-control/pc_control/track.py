@@ -2,10 +2,11 @@ import pygame
 from typing import Tuple
 import pygame.gfxdraw
 import tomllib
+from pathlib import Path
 
 
 def get_colours():
-    with open(r"pc-control\settings.toml", "rb") as f:
+    with open(Path(__file__).parent.parent / "settings.toml", "rb") as f:
         return tomllib.load(f)["track_colours"]
 
 
