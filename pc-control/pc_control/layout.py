@@ -6,8 +6,6 @@ from pc_control.signals import Signal
 from typing import Tuple
 import serial
 
-from pc_control.track import Track
-
 
 class Layout(pygame.Surface):
     """Draws the bowmont water layout diagram."""

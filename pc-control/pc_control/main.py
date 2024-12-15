@@ -53,7 +53,8 @@ def main():
     image = pygame.image.load(resources / "sign_small.png")
     roundel = pygame.image.load(resources / "roundel.png")
 
-    sync_button = Button(
+    # sync button
+    Button(
         screen,
         width - 55,
         height - 35,
