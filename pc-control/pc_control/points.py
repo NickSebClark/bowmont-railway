@@ -3,10 +3,11 @@ from typing import Tuple
 import tomllib
 import pygame.gfxdraw
 import serial
+from pathlib import Path
 
 
 def get_colours():
-    with open(r"pc-control\settings.toml", "rb") as f:
+    with open(Path(__file__).parent.parent / "settings.toml", "rb") as f:
         return tomllib.load(f)["point_colours"]
 
 

@@ -1,12 +1,13 @@
 import tomllib
 import serial
+from pathlib import Path
 
 
 def read_connection_settings():
-    with open(r"pc-control\settings.toml", "rb") as f:
+    with open(Path(__file__).parent.parent / "settings.toml", "rb") as f:
         settings = tomllib.load(f)["serial"]
 
-    return settings['port'], settings['baud']
+    return settings["port"], settings["baud"]
 
 
 class ZeroWaitSerial(serial.Serial):
@@ -17,8 +18,8 @@ class ZeroWaitSerial(serial.Serial):
         self.buffer = ""
 
     def read_available_lines(self):
-        if (self.in_waiting > 0):
-            self.buffer += self.read(self.in_waiting).decode('ascii') 
+        if self.in_waiting > 0:
+            self.buffer += self.read(self.in_waiting).decode("ascii")
 
             lines = self.buffer.split("\n")
             self.buffer = lines[-1]
@@ -26,7 +27,8 @@ class ZeroWaitSerial(serial.Serial):
         else:
             return []
 
-class DummySerial():
+
+class DummySerial:
     """Can be used when serial is not available"""
 
     def __init__(self, *args, **kwargs):
@@ -34,14 +36,15 @@ class DummySerial():
 
     def write(self, string):
         print(f"Write: {string}")
-        
+
     def read_available_lines(self):
         return []
+
 
 if __name__ == "__main__":
 
     port, baud = read_connection_settings()
-    
+
     ser = ZeroWaitSerial(port, baud)
 
     while True:

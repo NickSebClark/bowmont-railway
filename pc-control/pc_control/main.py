@@ -1,13 +1,17 @@
 """PC Control app top-level"""
 
+from pathlib import Path
 import pygame
 import pygame.freetype
+
 from pc_control.layout import Layout
 from pc_control.serial_comms import ZeroWaitSerial, read_connection_settings, DummySerial
 from datetime import datetime
 from pygame_widgets.button import Button
 import pygame_widgets
 from serial import SerialException
+
+resources = Path(__file__).parent / "resources"
 
 
 def main():
@@ -22,7 +26,7 @@ def main():
     height = 458
 
     # Title font
-    title_font = pygame.font.Font("pc-control/resources/britrdn_.ttf", 39)
+    title_font = pygame.font.Font(resources / "britrdn_.ttf", 39)
     title_surface = title_font.render("Bowmont Town", True, (255, 255, 255))
     sign_outline = pygame.Rect(width / 2 - title_surface.get_width() / 2 - 10, 5, title_surface.get_width() + 20, 40)
 
@@ -33,23 +37,24 @@ def main():
     # Set up the display
     screen = pygame.display.set_mode((width, height))
 
-    #Connect the serial
+    # Connect the serial
     try:
         ser = ZeroWaitSerial(port, baud)
         connected = True
     except SerialException as e:
         connected = False
-        connnection_message = title_font.render("NOT CONNECTED", True, (255,0,0))
+        connnection_message = title_font.render("NOT CONNECTED", True, (255, 0, 0))
         ser = DummySerial()
         print("Unable to start Serial" + str(e))
 
     layout = Layout(ser)
     layout_pos = (5, 50)
 
-    image = pygame.image.load("pc-control/resources/sign_small.png")
-    roundel = pygame.image.load("pc-control/resources/roundel.png")
+    image = pygame.image.load(resources / "sign_small.png")
+    roundel = pygame.image.load(resources / "roundel.png")
 
-    sync_button = Button(
+    # sync button
+    Button(
         screen,
         width - 55,
         height - 35,
@@ -62,7 +67,7 @@ def main():
         pressedColour=(0, 200, 20),
         textColor=(100, 100, 100),
         radius=8,
-        onClick = lambda: request_sync(ser)
+        onClick=lambda: request_sync(ser),
     )
 
     running = True
@@ -96,10 +101,10 @@ def main():
         pygame.draw.rect(screen, (255, 255, 255), sign_outline, 2)
 
         if not connected:
-            screen.blit(connnection_message, (width/2-connnection_message.get_width()/2, height-50))
+            screen.blit(connnection_message, (width / 2 - connnection_message.get_width() / 2, height - 50))
 
         lines = ser.read_available_lines()
-            
+
         process_lines(lines, layout, serial_monitor_buffer)
         draw_serial_monitor(monitor_font, serial_monitor_buffer, height, screen)
 
@@ -109,7 +114,8 @@ def main():
 
     pygame.quit()
 
-def request_sync(ser:ZeroWaitSerial):
+
+def request_sync(ser: ZeroWaitSerial):
     print("request sync")
     ser.write(str.encode("r\n"))
 

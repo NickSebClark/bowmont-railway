@@ -6,22 +6,17 @@ Uses pygame for animation. Communicates with Arduino using PySerial
 
 Top-level: [main.py](pc_control/main.py).
 
-Settings can be found in [settings.toml](pyproject.toml).
+Settings can be found in [settings.toml](settings.toml).
 
 
 ## Install
 
-Dependencies are managed with poetry. cd to the directory then:
+Dependencies are managed with [uv](https://docs.astral.sh/uv/). cd to the directory and get started with:
 
 ```shell
-poetry install
+uv run main
 ```
 
-I reccomend [pipx](https://pypa.github.io/pipx/) to install [poetry](https://python-poetry.org/) and setting the venv directory to the project directory:
+The project is configured as a package. This tells uv to install pc_control as an editable package in the environment. This way, imports can always be relative to this package.
 
-```shell
-pip install pipx
-pipx ensurepath
-pipx install poetry
-poetry config virtualenvs.in-project
-```
+main.py is added as a script so we can access it easily with uv run.

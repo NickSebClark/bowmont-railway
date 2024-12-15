@@ -4,7 +4,6 @@ from pc_control.points import StraightPoint, CrossOver, Point, Triple
 from pc_control.track import Track
 from pc_control.signals import Signal
 from typing import Tuple
-import math
 import serial
 
 

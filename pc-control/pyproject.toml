@@ -1,18 +1,17 @@
-[tool.poetry]
+[project]
 name = "pc-control"
 version = "0.1.0"
-description = ""
-authors = ["Nick Clark <clarknick1990@gmail.com>"]
+description = "PC Control for Bowmont Railway"
 readme = "README.md"
-packages = [{include = "pc_control"}]
+requires-python = ">=3.11"
+dependencies = [
+    "pygame-widgets>=1.1.5",
+    "pygame>=2.6.1",
+    "pyserial>=3.5",
+]
 
-[tool.poetry.dependencies]
-python = "^3.11"
-pygame = "^2.3.0"
-pyserial = "^3.5"
-pygame-widgets = "^1.1.1"
+[tool.uv]
+package = true
 
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[project.scripts]
+main = "pc_control.main:main"
