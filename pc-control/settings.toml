@@ -11,5 +11,5 @@ base_colour = [255, 255, 255]
 highlight_colour = [255, 0, 0]
 
 [serial]
-port = 'COM3'
+port = 'COM4'
 baud = 9600

@@ -1,3 +1,5 @@
+#include <Adafruit_PWMServoDriver.h>
+
 #include <TimerThree.h>
 
 #include <Wire.h>
@@ -7,53 +9,58 @@
 
 #define Control_switch 44
 
+
+// min = 200
+// max = 300 
+
 // the counter number for each servo
-#define servo_0 4   // Button 0
+// look at the diagram on Python. The buttons are labelled
+#define servo_0 -1   // Button 0
 #define servo_1 0   // Button 1
 #define servo_2 5   // Button 2
-#define servo_3 -1  // Button 3
-#define servo_4 -1  // Button 3
-#define servo_5 1   // Button 4
+#define servo_3 2  // Button 3
+#define servo_4 1  // Button 3
+#define servo_5 -1   // Button 4
 #define servo_6 -1  // Button 5
 #define servo_7 -1  // Button 5
 #define servo_8 -1  // Button 6
 #define servo_9 6   // Button 6
-#define servo_10 2  // Button 7
-#define servo_11 -1 // Button 8
+#define servo_10 -1  // Button 7
+#define servo_11 3  // Button 8
 #define servo_12 -1 // Button 9
-#define servo_13 -1 // Button 10
+#define servo_13 12 // Button 10
 #define servo_14 -1 // Button 11
 
-#define servo_0_pos0 450
-#define servo_1_pos0 450
+#define servo_0_pos0 250
+#define servo_1_pos0 250
 #define servo_2_pos0 450
-#define servo_3_pos0 -1
-#define servo_4_pos0 -1
-#define servo_5_pos0 580
+#define servo_3_pos0 200
+#define servo_4_pos0 275 //14/06
+#define servo_5_pos0 200
 #define servo_6_pos0 -1
 #define servo_7_pos0 -1
-#define servo_8_pos0 -1
+#define servo_8_pos0 200 
 #define servo_9_pos0 450
 #define servo_10_pos0 450
-#define servo_11_pos0 -1
+#define servo_11_pos0 200 // the first one
 #define servo_12_pos0 -1
-#define servo_13_pos0 -1
+#define servo_13_pos0 200 //21/06/25
 #define servo_14_pos0 -1
 
 #define servo_0_pos1 600
-#define servo_1_pos1 600
+#define servo_1_pos1 250
 #define servo_2_pos1 600
-#define servo_3_pos1 -1
-#define servo_4_pos1 -1
-#define servo_5_pos1 475
+#define servo_3_pos1 350
+#define servo_4_pos1 200 //14/06/25
+#define servo_5_pos1 300
 #define servo_6_pos1 -1
 #define servo_7_pos1 -1
-#define servo_8_pos1 -1
+#define servo_8_pos1 300 
 #define servo_9_pos1 600
 #define servo_10_pos1 600
-#define servo_11_pos1 -1
+#define servo_11_pos1 300 // first one
 #define servo_12_pos1 -1
-#define servo_13_pos1 -1
+#define servo_13_pos1 400 // 21/06/25
 #define servo_14_pos1 -1
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
@@ -77,7 +84,7 @@ void setup()
   Serial1.begin(9600);
 
   pwm.begin();
-  pwm.setPWMFreq(60);
+  pwm.setPWMFreq(50);
 
   for (int i = 0; i < NBR_POINTS; i++)
   {
