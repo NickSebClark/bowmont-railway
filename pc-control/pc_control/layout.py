@@ -10,48 +10,48 @@ import serial
 class Layout(pygame.Surface):
     """Draws the bowmont water layout diagram."""
 
-    width = 590
-    height = 345
+    width = 1270
+    height = 670
 
     def __init__(self, ser: serial.Serial):
         """Creates all the objects in the layout drawing."""
         super().__init__((Layout.width, Layout.height))
 
-        sw_0 = StraightPoint(self, 20, 120, 0, ser, type="up_right", name="SW0")
+        sw_0 = StraightPoint(self, 40, 240, 0, ser, type="up_right", name="SW0")
         sw_0_enter, sw_0_exit, sw_0_diverge = sw_0.get_connections()
 
-        sw_1 = StraightPoint(self, 20, 230, 1, ser, type="up_right", name="SW1")
+        sw_1 = StraightPoint(self, 40, 460, 1, ser, type="up_right", name="SW1")
         sw_1_enter, sw_1_exit, sw_1_diverge = sw_1.get_connections()
 
-        sw_2 = StraightPoint(self, 140, 180, 2, ser, type="left_down", name="SW2")
+        sw_2 = StraightPoint(self, 280, 360, 2, ser, type="left_down", name="SW2")
         sw_2_enter, sw_2_exit, sw_2_diverge = sw_2.get_connections()
 
-        sw_3 = CrossOver(self, 140, 300, 3, ser, "top_bottom", name="SW3")
+        sw_3 = CrossOver(self, 280, 600, 3, ser, "top_bottom", name="SW3")
         sw_3_enter1, sw_3_enter2, sw_3_exit1, sw10_exit2 = sw_3.get_connections()
 
-        sw_4 = StraightPoint(self, 230, 90, 5, ser, type="right_up", name="SW4", name_pos="top")
+        sw_4 = StraightPoint(self, 460, 180, 5, ser, type="right_up", name="SW4", name_pos="top")
         sw_4_enter, sw_4_exit, sw_4_diverge = sw_4.get_connections()
 
-        sw_5 = Triple(self, 280, 250, 6, ser, name="SW5")
+        sw_5 = Triple(self, 560, 500, 6, ser, name="SW5")
         sw_5_enter, sw_5_top, sw_5_middle, sw_5_bottom = sw_5.get_connections()
 
-        sw_6 = CrossOver(self, 240, 160, 8, ser, "bottom_top", name="SW6", name_pos="top")
+        sw_6 = CrossOver(self, 480, 320, 8, ser, "bottom_top", name="SW6", name_pos="top")
         sw_6_enter1, sw_6_enter2, sw_6_exit1, sw6_exit2 = sw_6.get_connections()
 
-        sw_7 = StraightPoint(self, 310, 110, 10, ser, type="right_up", name="SW7")
+        sw_7 = StraightPoint(self, 620, 220, 10, ser, type="right_up", name="SW7")
         sw_7_enter, sw_7_exit, sw_7_diverge = sw_7.get_connections()
         station_signal = Signal(self, 315, 60)
 
-        sw_8 = StraightPoint(self, 370, 250, 11, ser, type="right_up", name="SW8", name_pos="top")
+        sw_8 = StraightPoint(self, 740, 500, 11, ser, type="right_up", name="SW8", name_pos="top")
         sw_8_enter, sw_8_exit, sw_8_diverge = sw_8.get_connections()
 
-        sw_9 = StraightPoint(self, 510, 20, 12, ser, type="right_down", name="SW9")
+        sw_9 = StraightPoint(self, 1020, 40, 12, ser, type="right_down", name="SW9")
         sw_9_enter, sw_9_exit, sw_9_diverge = sw_9.get_connections()
 
-        sw_10 = StraightPoint(self, 480, 320, 13, ser, type="right_up", name="SW10")
+        sw_10 = StraightPoint(self, 960, 640, 13, ser, type="right_up", name="SW10")
         sw_10_enter, sw_10_exit, sw_10_diverge = sw_10.get_connections()
 
-        sw_11 = StraightPoint(self, 440, 230, 14, ser, type="left_up", name="SW11")
+        sw_11 = StraightPoint(self, 880, 460, 14, ser, type="left_up", name="SW11")
         sw_11_enter, sw_11_exit, sw_11_diverge = sw_11.get_connections()
 
         self.points: list[Point] = [
@@ -110,7 +110,7 @@ class Layout(pygame.Surface):
             self,
             sw_2_enter,
             sw_3_enter1,
-            [(sw_2_enter[0] - 50, sw_2_enter[1]), (sw_2_enter[0] - 50, sw_3_enter1[1])],
+            [(sw_2_enter[0] - 120, sw_2_enter[1]), (sw_2_enter[0] - 120, sw_3_enter1[1])],
         )
         tr12 = Track(
             self,
@@ -123,8 +123,8 @@ class Layout(pygame.Surface):
             sw_11_diverge,
             sw6_exit2,
             [
-                (sw_11_diverge[0] + 20, sw_11_diverge[1]),
-                (sw_11_diverge[0] + 20, sw6_exit2[1]),
+                (sw_11_diverge[0] + 40, sw_11_diverge[1]),
+                (sw_11_diverge[0] + 40, sw6_exit2[1]),
             ],
         )
 
@@ -167,7 +167,7 @@ class Layout(pygame.Surface):
             self,
             sw_11_exit,
             sw_7_enter,
-            [(sw_11_exit[0] + 40, sw_11_exit[1]), (sw_11_exit[0] + 40, sw_7_enter[1])],
+            [(sw_11_exit[0] + 100, sw_11_exit[1]), (sw_11_exit[0] + 100, sw_7_enter[1])],
         )
 
         platform_1 = Track(
@@ -289,7 +289,7 @@ class Layout(pygame.Surface):
             self,
             (125, 125, 125),
             False,
-            [(342, 0), (342, 135), (120, 135), (120, Layout.height)],
+            [(650, 0), (650, 270), (200, 270), (200, Layout.height)],
             width=2,
         )
 

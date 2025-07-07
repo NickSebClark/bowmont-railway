@@ -22,8 +22,8 @@ def main():
     pygame.init()
     pygame.font.init()
 
-    width = 600
-    height = 458
+    width = 1280
+    height = 800
 
     # Title font
     title_font = pygame.font.Font(resources / "britrdn_.ttf", 39)
@@ -35,7 +35,7 @@ def main():
     serial_monitor_buffer = [""] * 5
 
     # Set up the display
-    screen = pygame.display.set_mode((width, height))
+    screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
 
     # Connect the serial
     try:

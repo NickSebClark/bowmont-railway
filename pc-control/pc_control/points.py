@@ -180,8 +180,8 @@ class StraightPoint(Point):
         servo_index: int,
         ser: serial.Serial,
         type: str = "left_up",
-        length: int = 50,
-        throw: int = 20,
+        length: int = 100,
+        throw: int = 40,
         name: str = "",
         name_pos: str = "bottom",
     ):
@@ -382,8 +382,8 @@ class CrossOver(Point):
         servo_index: int,
         ser: serial.Serial,
         type: str,
-        length: int = 50,
-        throw: int = 20,
+        length: int = 100,
+        throw: int = 40,
         name: str = "",
         name_pos: str = "bottom",
     ):
@@ -528,8 +528,8 @@ class Triple(Point):
         top: int,
         servo_index: int,
         ser: serial.Serial,
-        length: int = 50,
-        throw: int = 20,
+        length: int = 100,
+        throw: int = 40,
         name: str = "",
     ):
         super().__init__(display, left, top, servo_index, ser, length, throw, name)
