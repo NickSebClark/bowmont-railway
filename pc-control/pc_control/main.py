@@ -52,6 +52,7 @@ def main():
 
     image = pygame.image.load(resources / "sign_small.png")
     roundel = pygame.image.load(resources / "roundel.png")
+    roundel_rect = roundel.get_rect(topleft=(width - 40 - 5, 5))
 
     # sync button
     Button(
@@ -83,6 +84,9 @@ def main():
                 running = False
             elif event.type == pygame.MOUSEBUTTONUP:
                 mouse_up = True
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if roundel_rect.collidepoint(event.pos):
+                    running = False
 
         mouse_pos = pygame.mouse.get_pos()
 
@@ -98,7 +102,7 @@ def main():
         screen.blit(scaled_layout, layout_pos)
         screen.blit(title_surface, (width / 2 - title_surface.get_width() / 2, 7))
         screen.blit(image, (5, 5))
-        screen.blit(roundel, (width - 40 - 5, 5))
+        screen.blit(roundel, roundel_rect)
         pygame.draw.rect(screen, (255, 255, 255), sign_outline, 2)
 
         if not connected:
