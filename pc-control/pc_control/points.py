@@ -80,7 +80,7 @@ class Point:
         self.name_pos = name_pos
 
         # label_font = pygame.font.Font("resources/britrdn_.ttf", 10)
-        label_font = pygame.font.SysFont("MS Reference Sans Serif", 10)
+        label_font = pygame.font.SysFont("MS Reference Sans Serif", 14)
         self.label_surface = label_font.render(self.name, True, self.colours["boundary"])
 
         self.rect = pygame.Rect(0, 0, 0, 0)
