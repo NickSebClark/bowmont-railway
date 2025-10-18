@@ -21,7 +21,7 @@
 #define servo_3 2  // Button 3
 #define servo_4 1  // Button 3
 #define servo_5 -1   // Button 4
-#define servo_6 -1  // Button 5
+#define servo_6 4  // Button 5
 #define servo_7 -1  // Button 5
 #define servo_8 -1  // Button 6
 #define servo_9 6   // Button 6
@@ -37,7 +37,7 @@
 #define servo_3_pos0 200
 #define servo_4_pos0 275 //14/06
 #define servo_5_pos0 200
-#define servo_6_pos0 -1
+#define servo_6_pos0 290 //18/10/25
 #define servo_7_pos0 -1
 #define servo_8_pos0 200 
 #define servo_9_pos0 450
@@ -45,7 +45,7 @@
 #define servo_11_pos0 200 // the first one
 #define servo_12_pos0 -1
 #define servo_13_pos0 275 //21/06/25
-#define servo_14_pos0 275
+#define servo_14_pos0 290 //12/10/25
 
 #define servo_0_pos1 600
 #define servo_1_pos1 250
@@ -53,7 +53,7 @@
 #define servo_3_pos1 350
 #define servo_4_pos1 200 //14/06/25
 #define servo_5_pos1 300
-#define servo_6_pos1 -1
+#define servo_6_pos1 340 //18/10/25
 #define servo_7_pos1 -1
 #define servo_8_pos1 300 
 #define servo_9_pos1 600
@@ -61,7 +61,7 @@
 #define servo_11_pos1 300 // first one
 #define servo_12_pos1 -1
 #define servo_13_pos1 350 // 21/06/25
-#define servo_14_pos1 350
+#define servo_14_pos1 340 //12/10/25
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 

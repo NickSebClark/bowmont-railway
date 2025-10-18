@@ -1,6 +1,7 @@
 """PC Control app top-level"""
 
 from pathlib import Path
+import sys
 import pygame
 import pygame.freetype
 
@@ -35,7 +36,11 @@ def main():
     serial_monitor_buffer = [""] * 5
 
     # Set up the display
-    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    # full screen if linux, windowed if windows
+    if sys.platform == "linux":
+        screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    else:
+        screen = pygame.display.set_mode((width, height))
 
     # Connect the serial
     try:
