@@ -146,6 +146,10 @@ def process_lines(new_lines: list[str], layout: Layout, monitor_buffer: list[str
         monitor_buffer.append(f"{datetime.now().strftime('%H:%M:%S')}: {line}")
         monitor_buffer.pop(0)
 
+        # any empty line, let's skip
+        if len(line) == 0:
+            continue
+
         match line[0]:
             case "S":
                 if line[1] == "0" or line[1] == "1":
@@ -160,6 +164,8 @@ def process_lines(new_lines: list[str], layout: Layout, monitor_buffer: list[str
                     except Exception as e:
                         print(e)
             case "<":
+                pass
+            case _:
                 pass
 
 

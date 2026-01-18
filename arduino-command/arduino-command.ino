@@ -38,11 +38,11 @@
 #define servo_4_pos0 275 //14/06
 #define servo_5_pos0 275
 #define servo_6_pos0 290 //18/10/25
-#define servo_7_pos0 290 //21/10/25
+#define servo_7_pos0 299 //21/10/25
 #define servo_8_pos0 278 //04/11/25
 #define servo_9_pos0 325 
 #define servo_10_pos0 395
-#define servo_11_pos0 200 // the first one
+#define servo_11_pos0 283 // the first one
 #define servo_12_pos0 280 //03/11/25
 #define servo_13_pos0 275 //21/06/25
 #define servo_14_pos0 290 //12/10/25
@@ -54,11 +54,11 @@
 #define servo_4_pos1 200 //14/06/25
 #define servo_5_pos1 358
 #define servo_6_pos1 340 //18/10/25
-#define servo_7_pos1 340 //21/10/25
+#define servo_7_pos1 362 //21/10/25
 #define servo_8_pos1 325 //04/11/25 
 #define servo_9_pos1 275 //04/11/25
 #define servo_10_pos1 275
-#define servo_11_pos1 300 // first one
+#define servo_11_pos1 339 // first one
 #define servo_12_pos1 350 //03/11/25
 #define servo_13_pos1 350 // 21/06/25
 #define servo_14_pos1 340 //12/10/25
@@ -107,8 +107,8 @@ void decrementPosition(int point)
 
 void setup()
 {
-  Serial.begin(9600); // init comms
-  Serial1.begin(9600);
+  Serial.begin(9600); // init comm                                        111111111111111111111111111111111111111111QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ` ```````````````````````           s
+  //Serial1.begin(9600);
 
   pwm.begin();
   pwm.setPWMFreq(50);
@@ -237,7 +237,7 @@ void serialEvent()
 
 void sendHeartBeat()
 {
-  Serial.print("<ID: 03/01/25 v2.2>\n");
+  Serial.print("<ID: 18/01/25 v2.3>\n");
 }
 
 void setPoint(int point)
