@@ -39,8 +39,8 @@
 #define servo_5_pos0 275
 #define servo_6_pos0 290 //18/10/25
 #define servo_7_pos0 299 //21/10/25
-#define servo_8_pos0 278 //04/11/25
-#define servo_9_pos0 325 
+#define servo_8_pos0 279 //04/11/25
+#define servo_9_pos0 324 
 #define servo_10_pos0 395
 #define servo_11_pos0 283 // the first one
 #define servo_12_pos0 280 //03/11/25
@@ -55,8 +55,8 @@
 #define servo_5_pos1 358
 #define servo_6_pos1 340 //18/10/25
 #define servo_7_pos1 362 //21/10/25
-#define servo_8_pos1 325 //04/11/25 
-#define servo_9_pos1 275 //04/11/25
+#define servo_8_pos1 324 //04/11/25 
+#define servo_9_pos1 276 //04/11/25
 #define servo_10_pos1 275
 #define servo_11_pos1 339 // first one
 #define servo_12_pos1 350 //03/11/25
