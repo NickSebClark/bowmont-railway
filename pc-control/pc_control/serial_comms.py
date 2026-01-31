@@ -19,11 +19,14 @@ class ZeroWaitSerial(serial.Serial):
 
     def read_available_lines(self):
         if self.in_waiting > 0:
-            self.buffer += self.read(self.in_waiting).decode("ascii")
-
-            lines = self.buffer.split("\n")
-            self.buffer = lines[-1]
-            return lines[:-1]
+            try:
+                self.buffer += self.read(self.in_waiting).decode("ascii")
+                lines = self.buffer.split("\n")
+                self.buffer = lines[-1]
+                return lines[:-1]
+            except UnicodeDecodeError:
+                print("Unicode Decode Error")
+                return []
         else:
             return []
 

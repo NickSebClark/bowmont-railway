@@ -15,53 +15,53 @@
 
 // the counter number for each servo
 // look at the diagram on Python. The buttons are labelled
-#define servo_0 -1   // Button 0
-#define servo_1 0   // Button 1
-#define servo_2 5   // Button 2
+#define servo_0 14   // Button 0
+#define servo_1 6   // Button 1
+#define servo_2 8   // Button 2
 #define servo_3 2  // Button 3
 #define servo_4 1  // Button 3
-#define servo_5 -1   // Button 4
-#define servo_6 -1  // Button 5
-#define servo_7 -1  // Button 5
-#define servo_8 -1  // Button 6
-#define servo_9 6   // Button 6
-#define servo_10 -1  // Button 7
+#define servo_5 15   // Button 4 #TESTTEST
+#define servo_6 4  // Button 5
+#define servo_7 5  // Button 5
+#define servo_8 10  // Button 6
+#define servo_9 9   // Button 6
+#define servo_10 7  // Button 7 INCREMENT TEST
 #define servo_11 3  // Button 8
-#define servo_12 -1 // Button 9
+#define servo_12 11 // Button 9
 #define servo_13 12 // Button 10
 #define servo_14 13 // Button 11
 
-#define servo_0_pos0 250
-#define servo_1_pos0 250
-#define servo_2_pos0 450
-#define servo_3_pos0 200
-#define servo_4_pos0 275 //14/06
-#define servo_5_pos0 200
-#define servo_6_pos0 -1
-#define servo_7_pos0 -1
-#define servo_8_pos0 200 
-#define servo_9_pos0 450
-#define servo_10_pos0 450
-#define servo_11_pos0 200 // the first one
-#define servo_12_pos0 -1
-#define servo_13_pos0 275 //21/06/25
-#define servo_14_pos0 275
+#define servo_0_pos0 326
+#define servo_1_pos0 275
+#define servo_2_pos0 340
+#define servo_3_pos0 350
+#define servo_4_pos0 200
+#define servo_5_pos0 275
+#define servo_6_pos0 350
+#define servo_7_pos0 362
+#define servo_8_pos0 279
+#define servo_9_pos0 324
+#define servo_10_pos0 395
+#define servo_11_pos0 350
+#define servo_12_pos0 276
+#define servo_13_pos0 275
+#define servo_14_pos0 290
 
-#define servo_0_pos1 600
-#define servo_1_pos1 250
-#define servo_2_pos1 600
-#define servo_3_pos1 350
-#define servo_4_pos1 200 //14/06/25
-#define servo_5_pos1 300
-#define servo_6_pos1 -1
-#define servo_7_pos1 -1
-#define servo_8_pos1 300 
-#define servo_9_pos1 600
-#define servo_10_pos1 600
-#define servo_11_pos1 300 // first one
-#define servo_12_pos1 -1
-#define servo_13_pos1 350 // 21/06/25
-#define servo_14_pos1 350
+#define servo_0_pos1 276
+#define servo_1_pos1 376
+#define servo_2_pos1 278
+#define servo_3_pos1 200
+#define servo_4_pos1 275
+#define servo_5_pos1 358
+#define servo_6_pos1 285
+#define servo_7_pos1 299
+#define servo_8_pos1 324
+#define servo_9_pos1 276
+#define servo_10_pos1 275
+#define servo_11_pos1 283
+#define servo_12_pos1 340
+#define servo_13_pos1 350
+#define servo_14_pos1 340
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
@@ -73,24 +73,54 @@ int pointServo[NBR_POINTS] = {servo_0, servo_1, servo_2, servo_3, servo_4, servo
 int pointPos0[NBR_POINTS] = {servo_0_pos0, servo_1_pos0, servo_2_pos0, servo_3_pos0, servo_4_pos0, servo_5_pos0, servo_6_pos0, servo_7_pos0, servo_8_pos0, servo_9_pos0, servo_10_pos0, servo_11_pos0, servo_12_pos0, servo_13_pos0, servo_14_pos0};
 int pointPos1[NBR_POINTS] = {servo_0_pos1, servo_1_pos1, servo_2_pos1, servo_3_pos1, servo_4_pos1, servo_5_pos1, servo_6_pos1, servo_7_pos1, servo_8_pos1, servo_9_pos1, servo_10_pos1, servo_11_pos1, servo_12_pos1, servo_13_pos1, servo_14_pos1};
 int point_pair[NBR_POINTS] = {0, 0, 0, 1, -1, 0, 0, 0, 1, -1, 0, 0, 0, 0, 0}; // shows the offset, if any, to a partner in a point pair.
+int pointPos[NBR_POINTS];
 
 boolean stringRecieved = false;
 
 String syncString;
 
+void incrementPosition(int point)
+{
+  pointPos[point]++;
+
+  pwm.setPWM(pointServo[point], 0, pointPos[point]);
+
+  Serial.print("<Increment point in Arduino, Point: ");
+  Serial.print(point);
+  Serial.print(" Val: ");
+  Serial.print(pointPos[point]);
+  Serial.print(">\n");
+}
+
+void decrementPosition(int point)
+{
+  pointPos[point]--;
+
+  pwm.setPWM(pointServo[point], 0, pointPos[point]);
+
+  Serial.print("<Decrement point in Arduino, Point: ");
+  Serial.print(point);
+  Serial.print(" Val: ");
+  Serial.print(pointPos[point]);
+  Serial.print(">\n");
+}
+
 void setup()
 {
-  Serial.begin(9600); // init comms
+  Serial.begin(9600); // init comm
   Serial1.begin(9600);
 
   pwm.begin();
   pwm.setPWMFreq(50);
 
+  memcpy(pointPos, pointPos0, sizeof(pointPos0));
+
   for (int i = 0; i < NBR_POINTS; i++)
   {
     pointStatus[i] = 0;
-    setPoint(i);
+    setPoint(i, false);
   }
+  syncData();
 
   Timer3.initialize(20000000);
   Timer3.attachInterrupt(sendHeartBeat);
@@ -103,24 +133,22 @@ void loop()
 void parseString()
 {
   Serial.print("<Parsing Input String>\n");
-  String s;
+  
   int point_index;
 
   switch (inCmd[0])
   {
   case 'p':
 
-    if (cmdPos > 2)
-    { // two character number
-      s = String(inCmd[1]) + String(inCmd[2]);
-      point_index = s.toInt();
+    point_index = indexFromString();
+
+    // set the point pair too if it exists. We only update on the seconf of the pair
+    if (point_pair[point_index] != 0){ 
+      setPoint(point_index, false);
+      setPoint(point_index + point_pair[point_index], true);
     }
     else
-      point_index = (int)inCmd[1] - 48;
-
-    setPoint(point_index);
-    if (point_pair[point_index] != 0) // set the point pair too if it exists
-      setPoint(point_index + point_pair[point_index]);
+      setPoint(point_index, true);
 
     break;
   case 's':
@@ -135,11 +163,31 @@ void parseString()
   case 'r':
     syncData();
     break;
+  case 'i':
+    incrementPosition(indexFromString());
+    break;
+  case 'd':
+    decrementPosition(indexFromString());
+    break;
   default:
     Serial.println("<Command not found>");
     break;
   }
 }
+
+int indexFromString()
+{
+  String s;
+  if (cmdPos > 2)
+  { // two character number
+    s = String(inCmd[1]) + String(inCmd[2]);
+    return s.toInt();
+  }
+  else
+    return (int)inCmd[1] - 48;
+}
+
+
 
 void serialEvent1()
 {
@@ -194,10 +242,10 @@ void serialEvent()
 
 void sendHeartBeat()
 {
-  Serial.print("<ID: 25/07/23 V2.1>\n");
+  Serial.print("<ID: 18/01/25 v2.3>\n");
 }
 
-void setPoint(int point)
+void setPoint(int point, bool sync)
 { // toggles status of point
 
   if (pointServo[point] > -2)
@@ -211,6 +259,7 @@ void setPoint(int point)
       Serial.print(">\n");
       pwm.setPWM(pointServo[point], 0, pointPos0[point]);
       pointStatus[point] = 0;
+      pointPos[point] = pointPos0[point];
     }
     else
     {
@@ -221,9 +270,15 @@ void setPoint(int point)
       Serial.print(">\n");
       pwm.setPWM(pointServo[point], 0, pointPos1[point]);
       pointStatus[point] = 1;
+      pointPos[point] = pointPos1[point];
     }
   }
-  syncData();
+  delay(1000);
+  pwm.setPWM(pointServo[point], 0, 0);
+
+  if (sync){
+    syncData();
+  }
 }
 
 void syncData()

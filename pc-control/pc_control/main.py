@@ -1,6 +1,7 @@
 """PC Control app top-level"""
 
 from pathlib import Path
+import sys
 import pygame
 import pygame.freetype
 
@@ -22,8 +23,8 @@ def main():
     pygame.init()
     pygame.font.init()
 
-    width = 600
-    height = 458
+    width = 1280
+    height = 800
 
     # Title font
     title_font = pygame.font.Font(resources / "britrdn_.ttf", 39)
@@ -35,7 +36,11 @@ def main():
     serial_monitor_buffer = [""] * 5
 
     # Set up the display
-    screen = pygame.display.set_mode((width, height))
+    # full screen if linux, windowed if windows
+    if sys.platform == "linux":
+        screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    else:
+        screen = pygame.display.set_mode((width, height))
 
     # Connect the serial
     try:
@@ -52,6 +57,7 @@ def main():
 
     image = pygame.image.load(resources / "sign_small.png")
     roundel = pygame.image.load(resources / "roundel.png")
+    roundel_rect = roundel.get_rect(topleft=(width - 40 - 5, 5))
 
     # sync button
     Button(
@@ -83,6 +89,9 @@ def main():
                 running = False
             elif event.type == pygame.MOUSEBUTTONUP:
                 mouse_up = True
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if roundel_rect.collidepoint(event.pos):
+                    running = False
 
         mouse_pos = pygame.mouse.get_pos()
 
@@ -91,13 +100,14 @@ def main():
         pygame_widgets.update(events)
 
         # Draw the layout with the mouse position relative to the layout pos.
-        layout.draw((mouse_pos[0] - layout_pos[0], mouse_pos[1] - layout_pos[1]), mouse_up)
+        layout.draw(((mouse_pos[0] - layout_pos[0])/2, (mouse_pos[1] - layout_pos[1])/2), mouse_up)
 
         # Blit the layout and text
-        screen.blit(layout, layout_pos)
+        scaled_layout = pygame.transform.scale2x(layout)
+        screen.blit(scaled_layout, layout_pos)
         screen.blit(title_surface, (width / 2 - title_surface.get_width() / 2, 7))
         screen.blit(image, (5, 5))
-        screen.blit(roundel, (width - 40 - 5, 5))
+        screen.blit(roundel, roundel_rect)
         pygame.draw.rect(screen, (255, 255, 255), sign_outline, 2)
 
         if not connected:
@@ -136,6 +146,10 @@ def process_lines(new_lines: list[str], layout: Layout, monitor_buffer: list[str
         monitor_buffer.append(f"{datetime.now().strftime('%H:%M:%S')}: {line}")
         monitor_buffer.pop(0)
 
+        # any empty line, let's skip
+        if len(line) == 0:
+            continue
+
         match line[0]:
             case "S":
                 if line[1] == "0" or line[1] == "1":
@@ -150,6 +164,8 @@ def process_lines(new_lines: list[str], layout: Layout, monitor_buffer: list[str
                     except Exception as e:
                         print(e)
             case "<":
+                pass
+            case _:
                 pass
 
 

@@ -3,23 +3,23 @@
 
 // led pins for each point
 int ledpins[][2] = {{10, 11},
-                    {46, 45},
-                    {33, 34},
+                    {45, 46},
+                    {34, 33},
                     {52, 53},
                     {8, 23},
                     {-1, -1},
                     {31, 30},
                     {24, 25},
                     {36, 41},
-                    {27, 29},
-                    {49, 39},
+                    {29, 27},
+                    {39, 49},
                     {44, 50}};
 
 // LED pins for the tristate button
 int ledpins_tri[] = {35, 43, 51};
 int button_pins[] = {9, 48, 42, 7, 22, 40, 32, 26, 37, 28, 47, 6, 38};
 
-const int flash_wait = 50;
+const int flash_wait = 200;
 
 int servo_point[] = {0, 1, 2, 3, 3, 4, 5, 5, 6, 6, 7, 8, 9, 10, 11}; // defines which point a particular servo is changing. I.e. when a servo changes which light should we change.
 int point_servo[] = {0, 1, 2, 3, 5, 6, 8, 10, 11, 12, 13, 14};       // what servo to switch for a particular point, the controller handles point pairs)
@@ -39,6 +39,7 @@ unsigned long previousMillis = 0;                      // will store last time L
 
 char inCmd[25];
 int cmdPos = 0;
+bool startup = true;
 
 void setup()
 {
@@ -114,6 +115,22 @@ void flashLights(int wait)
 
 void circleLights()
 {
+
+  for (i = 0; i < NBR_POINT_BUTTONS; i++)
+  { // circle around all the lights
+    if (i == 5)
+    {
+      digitalWrite(ledpins_tri[0], LOW);
+      digitalWrite(ledpins_tri[1], LOW);
+      digitalWrite(ledpins_tri[2], LOW);
+    }
+    else
+    {
+      digitalWrite(ledpins[i][0], LOW);
+      digitalWrite(ledpins[i][1], LOW);
+    }
+  }
+
   for (i = 0; i < NBR_POINT_BUTTONS; i++)
   { // circle around all the lights
     if (i == 5)
@@ -299,10 +316,14 @@ void serialEvent1()
         for (i = 0; i < NBR_SERVOS; i++)
         {
           updatePointState(i, String(inCmd[i + 1]).toInt());
+          // we want a slow parse on startup
+          if (startup)
+            delay(flash_wait);
         }
       }
       // reset input string now it has been parsed.
       cmdPos = 0;
+      startup = false;
     }
   }
 }

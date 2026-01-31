@@ -80,7 +80,7 @@ class Point:
         self.name_pos = name_pos
 
         # label_font = pygame.font.Font("resources/britrdn_.ttf", 10)
-        label_font = pygame.font.SysFont("MS Reference Sans Serif", 10)
+        label_font = pygame.font.SysFont("MS Reference Sans Serif", 14)
         self.label_surface = label_font.render(self.name, True, self.colours["boundary"])
 
         self.rect = pygame.Rect(0, 0, 0, 0)
@@ -111,6 +111,7 @@ class Point:
             # have we clicked on the point?
             if mouse_up:
                 self.ser.write(str.encode(f"p{self.servo_index}\n"))
+                print(f"p{self.servo_index}")
                 self.line_colour = self.colours["moving"]
                 match self.state:
                     case "ahead":
@@ -608,16 +609,24 @@ class Triple(Point):
                 self.line_colour = self.colours["moving"]
                 match self.state:
                     case "road_1":
+                        self.ser.write(str.encode(f"p{self.servo_index}\n"))
                         self.state = "moving_to_road_2"
                     case "road_2":
+                        self.ser.write(str.encode(f"p{self.servo_index+1}\n"))
                         self.state = "moving_to_road_3"
                     case "road_3":
+                        self.ser.write(str.encode(f"p{self.servo_index}\n"))
+                        self.ser.write(str.encode(f"p{self.servo_index+1}\n"))
                         self.state = "moving_to_road_1"
                     case "moving_to_road_2":
+                        self.ser.write(str.encode(f"p{self.servo_index+1}\n"))
                         self.state = "moving_to_road_3"
                     case "moving_to_road_3":
+                        self.ser.write(str.encode(f"p{self.servo_index}\n"))
+                        self.ser.write(str.encode(f"p{self.servo_index+1}\n"))
                         self.state = "moving_to_road_1"
                     case "moving_to_road_1":
+                        self.ser.write(str.encode(f"p{self.servo_index}\n"))
                         self.state = "moving_to_road_2"
         elif self.state == "road_2":
             self.line_colour = self.colours["ahead"]

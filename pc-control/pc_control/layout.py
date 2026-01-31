@@ -10,7 +10,7 @@ import serial
 class Layout(pygame.Surface):
     """Draws the bowmont water layout diagram."""
 
-    width = 590
+    width = 635
     height = 345
 
     def __init__(self, ser: serial.Serial):
