@@ -31,37 +31,37 @@
 #define servo_13 12 // Button 10
 #define servo_14 13 // Button 11
 
-#define servo_0_pos0 276
+#define servo_0_pos0 326
 #define servo_1_pos0 275
 #define servo_2_pos0 340
-#define servo_3_pos0 200
-#define servo_4_pos0 275 //14/06
+#define servo_3_pos0 350
+#define servo_4_pos0 200
 #define servo_5_pos0 275
-#define servo_6_pos0 290 //18/10/25
-#define servo_7_pos0 299 //21/10/25
-#define servo_8_pos0 279 //04/11/25
-#define servo_9_pos0 324 
+#define servo_6_pos0 350
+#define servo_7_pos0 362
+#define servo_8_pos0 279
+#define servo_9_pos0 324
 #define servo_10_pos0 395
-#define servo_11_pos0 283 // the first one
-#define servo_12_pos0 280 //03/11/25
-#define servo_13_pos0 275 //21/06/25
-#define servo_14_pos0 290 //12/10/25
+#define servo_11_pos0 350
+#define servo_12_pos0 276
+#define servo_13_pos0 275
+#define servo_14_pos0 290
 
-#define servo_0_pos1 326
+#define servo_0_pos1 276
 #define servo_1_pos1 376
 #define servo_2_pos1 278
-#define servo_3_pos1 350
-#define servo_4_pos1 200 //14/06/25
+#define servo_3_pos1 200
+#define servo_4_pos1 275
 #define servo_5_pos1 358
-#define servo_6_pos1 340 //18/10/25
-#define servo_7_pos1 362 //21/10/25
-#define servo_8_pos1 324 //04/11/25 
-#define servo_9_pos1 276 //04/11/25
+#define servo_6_pos1 285
+#define servo_7_pos1 299
+#define servo_8_pos1 324
+#define servo_9_pos1 276
 #define servo_10_pos1 275
-#define servo_11_pos1 339 // first one
-#define servo_12_pos1 350 //03/11/25
-#define servo_13_pos1 350 // 21/06/25
-#define servo_14_pos1 340 //12/10/25
+#define servo_11_pos1 283
+#define servo_12_pos1 340
+#define servo_13_pos1 350
+#define servo_14_pos1 340
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
@@ -107,8 +107,8 @@ void decrementPosition(int point)
 
 void setup()
 {
-  Serial.begin(9600); // init comm                                        111111111111111111111111111111111111111111QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ` ```````````````````````           s
-  //Serial1.begin(9600);
+  Serial.begin(9600); // init comm
+  Serial1.begin(9600);
 
   pwm.begin();
   pwm.setPWMFreq(50);
@@ -118,8 +118,9 @@ void setup()
   for (int i = 0; i < NBR_POINTS; i++)
   {
     pointStatus[i] = 0;
-    setPoint(i);
+    setPoint(i, false);
   }
+  syncData();
 
   Timer3.initialize(20000000);
   Timer3.attachInterrupt(sendHeartBeat);
@@ -141,9 +142,13 @@ void parseString()
 
     point_index = indexFromString();
 
-    setPoint(point_index);
-    if (point_pair[point_index] != 0) // set the point pair too if it exists
-      setPoint(point_index + point_pair[point_index]);
+    // set the point pair too if it exists. We only update on the seconf of the pair
+    if (point_pair[point_index] != 0){ 
+      setPoint(point_index, false);
+      setPoint(point_index + point_pair[point_index], true);
+    }
+    else
+      setPoint(point_index, true);
 
     break;
   case 's':
@@ -240,7 +245,7 @@ void sendHeartBeat()
   Serial.print("<ID: 18/01/25 v2.3>\n");
 }
 
-void setPoint(int point)
+void setPoint(int point, bool sync)
 { // toggles status of point
 
   if (pointServo[point] > -2)
@@ -268,7 +273,12 @@ void setPoint(int point)
       pointPos[point] = pointPos1[point];
     }
   }
-  syncData();
+  delay(1000);
+  pwm.setPWM(pointServo[point], 0, 0);
+
+  if (sync){
+    syncData();
+  }
 }
 
 void syncData()
